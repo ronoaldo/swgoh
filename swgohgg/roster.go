@@ -1,4 +1,4 @@
-package data
+package swgohgg
 
 import (
 	"fmt"
@@ -6,9 +6,17 @@ import (
 	"strconv"
 )
 
-func Roster(profile string) (roster []*Char, err error) {
+func (c *Client) Roster(profile string) (roster []*Char, err error) {
 	url := fmt.Sprintf("https://swgoh.gg/u/%s/collection/", profile)
-	doc, err := goquery.NewDocument(url)
+	resp, err := c.hc.Get(url)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != 200 {
+		return nil, fmt.Errorf("swgohgg: unexpected status code %d", resp.StatusCode)
+	}
+	doc, err := goquery.NewDocumentFromReader(resp.Body)
 	if err != nil {
 		return nil, err
 	}

@@ -4,7 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"ronoaldo.gopkg.net/swgoh/data"
+	"ronoaldo.gopkg.net/swgoh/swgohgg"
 )
 
 var (
@@ -20,7 +20,7 @@ func init() {
 func main() {
 	flag.Parse()
 
-	roster, err := data.Roster(profile)
+	roster, err := swgohgg.NewClient().Roster(profile)
 	if err != nil {
 		log.Fatal(err)
 	}
