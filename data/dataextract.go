@@ -1,17 +1,16 @@
-package data 
+package data
 
 import (
 	"fmt"
-	"log"
 	"github.com/PuerkitoBio/goquery"
 	"strconv"
 )
 
-func Roster(profile string) (roster []*Char) {
+func Roster(profile string) (roster []*Char, err error) {
 	url := fmt.Sprintf("https://swgoh.gg/u/%s/collection/", profile)
 	doc, err := goquery.NewDocument(url)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 	doc.Find(".collection-char-list .collection-char").Each(func(i int, s *goquery.Selection) {
 		if s.HasClass("collection-char-missing") {
@@ -20,11 +19,11 @@ func Roster(profile string) (roster []*Char) {
 		char := parseChar(s)
 		roster = append(roster, char)
 	})
-	return roster
+	return roster, nil
 }
 
 type Char struct {
-	Name string
+	Name  string
 	Stars int
 	Level int
 	Gear  int

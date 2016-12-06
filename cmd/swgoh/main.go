@@ -1,13 +1,14 @@
 package main
 
 import (
-	"fmt"
 	"flag"
+	"fmt"
+	"log"
 	"ronoaldo.gopkg.net/swgoh/data"
 )
 
 var (
-	profile string
+	profile   string
 	starLevel int
 )
 
@@ -19,8 +20,11 @@ func init() {
 func main() {
 	flag.Parse()
 
-	roster := data.Roster(profile)
-	for _, char:= range roster {
+	roster, err := data.Roster(profile)
+	if err != nil {
+		log.Fatal(err)
+	}
+	for _, char := range roster {
 		if char.Stars >= starLevel {
 			fmt.Println(char)
 		}
