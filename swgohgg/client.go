@@ -5,16 +5,23 @@ import (
 )
 
 type Client struct {
-	hc *http.Client
+	hc      *http.Client
+	profile string
 }
 
-func NewClient() *Client {
+func NewClient(profile string) *Client {
 	return &Client{
-		hc: http.DefaultClient,
+		hc:      http.DefaultClient,
+		profile: profile,
 	}
 }
 
 func (c *Client) UseHTTPClient(hc *http.Client) *Client {
 	c.hc = hc
+	return c
+}
+
+func (c *Client) Profile(profile string) *Client {
+	c.profile = profile
 	return c
 }

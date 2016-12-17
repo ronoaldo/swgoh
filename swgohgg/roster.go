@@ -6,8 +6,8 @@ import (
 	"strconv"
 )
 
-func (c *Client) Roster(profile string) (roster []*Char, err error) {
-	url := fmt.Sprintf("https://swgoh.gg/u/%s/collection/", profile)
+func (c *Client) Roster() (roster Roster, err error) {
+	url := fmt.Sprintf("https://swgoh.gg/u/%s/collection/", c.profile)
 	resp, err := c.hc.Get(url)
 	if err != nil {
 		return nil, err
@@ -30,6 +30,26 @@ func (c *Client) Roster(profile string) (roster []*Char, err error) {
 	return roster, nil
 }
 
+type Roster []*Char
+
+func (r Roster) Contains(char string) bool {
+	for i := range r {
+		if r[i].Name == char {
+			return true
+		}
+	}
+	return false
+}
+
+func (r Roster) ContainsAll(chars ...string) bool {
+	for _, char := range chars {
+		if !r.Contains(char) {
+			return false
+		}
+	}
+	return true
+}
+
 type Char struct {
 	Name  string
 	Stars int
@@ -38,7 +58,10 @@ type Char struct {
 }
 
 func (c *Char) String() string {
-	return fmt.Sprintf("%s %d* G%d", c.Name, c.Stars, c.Gear)
+	if c == nil {
+		return "nil"
+	}
+	return fmt.Sprintf("%s %d* G%d Lvl%d", c.Name, c.Stars, c.Gear, c.Level)
 }
 
 func parseChar(s *goquery.Selection) *Char {
