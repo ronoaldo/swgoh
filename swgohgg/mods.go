@@ -25,7 +25,7 @@ func (m *Mod) String() string {
 	if m == nil {
 		return "nil mod"
 	}
-	str := fmt.Sprintf("%s %-18s L%d %d* %v %v", m.ShapeIcon(), m.BonusSet, m.Level, m.Rarity, m.PrimStat, m.SecStat)
+	str := fmt.Sprintf("%s %s L%d %d* %v %v", m.ShapeIcon(), m.BonusSet, m.Level, m.Rarity, m.PrimStat, m.SecStat)
 	if m.UsingIn != "" {
 		str += " (" + m.UsingIn + ")"
 	}
@@ -54,17 +54,17 @@ func (m *Mod) ShapeIcon() string {
 func (m *Mod) ShapeName() string {
 	switch m.Shape {
 	case "Transmitter":
-		return "Quadrado "
+		return "Square"
 	case "Processor":
-		return "Losango  "
+		return "Diamond"
 	case "Holo-Array":
-		return "Triangulo"
+		return "Triangle"
 	case "Data-Bus":
-		return "Circulo  "
+		return "Circle"
 	case "Receiver":
-		return "Seta     "
+		return "Arrow"
 	case "Multiplexer":
-		return "Cruz     "
+		return "Cross"
 	default:
 		return m.Shape
 	}
@@ -86,20 +86,29 @@ func (ms ModStat) String() string {
 type ModCollection []*Mod
 
 func (c *Client) Mods() (mods ModCollection, err error) {
-	url := fmt.Sprintf("https://swgoh.gg/u/%s/mods/", c.profile)
-	resp, err := c.hc.Get(url)
-	if err != nil {
-		return nil, err
+	page := 1
+	for {
+		url := fmt.Sprintf("https://swgoh.gg/u/%s/mods/?page=%d", c.profile, page)
+		resp, err := c.hc.Get(url)
+		if err != nil {
+			return nil, err
+		}
+		defer resp.Body.Close()
+		doc, err := goquery.NewDocumentFromReader(resp.Body)
+		if err != nil {
+			return nil, err
+		}
+		count := 0
+		doc.Find(".collection-mod").Each(func(i int, s *goquery.Selection) {
+			mod := parseMod(s)
+			mods = append(mods, mod)
+			count++
+		})
+		if count < 60 {
+			break
+		}
+		page++
 	}
-	defer resp.Body.Close()
-	doc, err := goquery.NewDocumentFromReader(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-	doc.Find(".collection-mod").Each(func(i int, s *goquery.Selection) {
-		mod := parseMod(s)
-		mods = append(mods, mod)
-	})
 	return mods, nil
 }
 
