@@ -25,7 +25,7 @@ func (m *Mod) String() string {
 	if m == nil {
 		return "nil mod"
 	}
-	str := fmt.Sprintf("%s %s L%d %d* %v %v", m.ShapeIcon(), m.BonusSet, m.Level, m.Rarity, m.PrimStat, m.SecStat)
+	str := fmt.Sprintf("%s %-9s L%-2d %d* %v %v", m.ShapeIcon(), statAbbrev(m.BonusSet), m.Level, m.Rarity, m.PrimStat, m.SecStat)
 	if m.UsingIn != "" {
 		str += " (" + m.UsingIn + ")"
 	}
@@ -71,21 +71,51 @@ func (m *Mod) ShapeName() string {
 }
 
 type ModStat struct {
-	Type         string
-	Value        float64
-	ValuePercent bool
+	Stat      string
+	Value     float64
+	IsPercent bool
 }
 
 func (ms ModStat) String() string {
-	if ms.ValuePercent {
-		return fmt.Sprintf("%.02f%% %s", ms.Value, ms.Type)
+	if ms.IsPercent {
+		return fmt.Sprintf("%.02f%% %s", ms.Value, ms.StatShortName())
 	}
-	return fmt.Sprintf("%.02f %s", ms.Value, ms.Type)
+	return fmt.Sprintf("%.02f %s", ms.Value, ms.StatShortName())
+}
+
+func (ms ModStat) StatShortName() string {
+	return statAbbrev(ms.Stat)
+}
+
+func statAbbrev(stat string) string {
+	switch stat {
+	case "Critical Chance":
+		return "Crit Chan"
+	case "Critical Damage":
+		return "Crit Dam"
+	case "Critical Avoidance":
+		return "Crit Avoi"
+	case "Protection":
+		return "Prot"
+	default:
+		return stat
+	}
+}
+
+type ModFilter struct {
+	Char string
+}
+
+func (f *ModFilter) Match(mod *Mod) bool {
+	if f.Char == "" {
+		return true
+	}
+	return f.Char == mod.UsingIn
 }
 
 type ModCollection []*Mod
 
-func (c *Client) Mods() (mods ModCollection, err error) {
+func (c *Client) Mods(filter ModFilter) (mods ModCollection, err error) {
 	page := 1
 	for {
 		url := fmt.Sprintf("https://swgoh.gg/u/%s/mods/?page=%d", c.profile, page)
@@ -101,7 +131,9 @@ func (c *Client) Mods() (mods ModCollection, err error) {
 		count := 0
 		doc.Find(".collection-mod").Each(func(i int, s *goquery.Selection) {
 			mod := parseMod(s)
-			mods = append(mods, mod)
+			if filter.Match(mod) {
+				mods = append(mods, mod)
+			}
 			count++
 		})
 		if count < 60 {
@@ -146,7 +178,7 @@ func parseMod(s *goquery.Selection) *Mod {
 }
 
 func parseStat(s *goquery.Selection) (stat ModStat) {
-	stat.Type = s.Find(".statmod-stat-label").Text()
+	stat.Stat = s.Find(".statmod-stat-label").Text()
 
 	strvalue := s.Find(".statmod-stat-value").Text()
 	strvalue = strings.Replace(strvalue, "%", "", -1)
@@ -157,6 +189,6 @@ func parseStat(s *goquery.Selection) (stat ModStat) {
 	if err != nil {
 		log.Printf("parsestat: invalid value %s", s.Find(".statmod-stat-value").Text())
 	}
-	stat.ValuePercent = strings.Contains(s.Find(".statmod-stat-value").Text(), "%")
+	stat.IsPercent = strings.Contains(s.Find(".statmod-stat-value").Text(), "%")
 	return stat
 }
