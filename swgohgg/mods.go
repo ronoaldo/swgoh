@@ -22,14 +22,45 @@ type Mod struct {
 }
 
 func (m *Mod) String() string {
+	return m.Format(false)
+}
+
+func (m *Mod) Format(useEmoji bool) string {
 	if m == nil {
 		return "nil mod"
 	}
-	str := fmt.Sprintf("%s %-9s L%-2d %d* %v %v", m.ShapeIcon(), statAbbrev(m.BonusSet), m.Level, m.Rarity, m.PrimStat, m.SecStat)
+	icon := m.ShapeIcon()
+	if useEmoji {
+		icon = m.ShapeEmoji()
+	}
+	str := fmt.Sprintf("%s %-9s L%-2d %d* %v %v", icon, m.BonusShortName(), m.Level, m.Rarity, m.PrimStat, m.SecStat)
 	if m.UsingIn != "" {
 		str += " (" + m.UsingIn + ")"
 	}
 	return str
+}
+
+func (m *Mod) BonusShortName() string {
+	return statAbbrev(m.BonusSet)
+}
+
+func (m *Mod) ShapeEmoji() string {
+	switch m.Shape {
+	case "Transmitter":
+		return "​◼️"
+	case "Processor":
+		return "​♦️"
+	case "Holo-Array":
+		return "⚠️"
+	case "Data-Bus":
+		return "​⚫️"
+	case "Receiver":
+		return "​↗️"
+	case "Multiplexer":
+		return "​➕"
+	default:
+		return m.Shape
+	}
 }
 
 func (m *Mod) ShapeIcon() string {
@@ -68,6 +99,18 @@ func (m *Mod) ShapeName() string {
 	default:
 		return m.Shape
 	}
+}
+
+func (m *Mod) HasStat(stat string) bool {
+	if m.PrimStat.Stat == stat || m.PrimStat.StatShortName() == stat {
+		return true
+	}
+	for _, sec := range m.SecStat {
+		if sec.Stat == stat || sec.StatShortName() == stat {
+			return true
+		}
+	}
+	return false
 }
 
 type ModStat struct {
