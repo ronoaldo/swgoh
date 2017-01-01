@@ -21,9 +21,6 @@ func (c *Client) Roster() (roster Roster, err error) {
 		return nil, err
 	}
 	doc.Find(".collection-char-list .collection-char").Each(func(i int, s *goquery.Selection) {
-		if s.HasClass("collection-char-missing") {
-			return
-		}
 		char := parseChar(s)
 		roster = append(roster, char)
 	})
@@ -111,6 +108,6 @@ func gearLevel(s *goquery.Selection) int {
 	case "I":
 		return 1
 	default:
-		return -1
+		return 0
 	}
 }
