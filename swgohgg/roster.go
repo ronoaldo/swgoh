@@ -3,27 +3,36 @@ package swgohgg
 import (
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
+	"sort"
 	"strconv"
 )
 
 func (c *Client) Roster() (roster Roster, err error) {
-	url := fmt.Sprintf("https://swgoh.gg/u/%s/collection/", c.profile)
-	resp, err := c.hc.Get(url)
-	if err != nil {
-		return nil, err
+	for page := 1; page <= 5 ; page++ {
+		url := fmt.Sprintf("https://swgoh.gg/u/%s/collection/?page=%d", c.profile, page)
+		resp, err := c.hc.Get(url)
+		if err != nil {
+			return nil, err
+		}
+		defer resp.Body.Close()
+		if resp.StatusCode == 404 {
+			break;
+		}
+		if resp.StatusCode != 200 {
+			return nil, fmt.Errorf("swgohgg: unexpected status code %d", resp.StatusCode)
+		}
+		doc, err := goquery.NewDocumentFromReader(resp.Body)
+		if err != nil {
+			return nil, err
+		}
+		doc.Find(".collection-char-list .collection-char").Each(func(i int, s *goquery.Selection) {
+			char := parseChar(s)
+			if !roster.Contains(char.Name) {
+				roster = append(roster, char)
+			}
+		})
 	}
-	defer resp.Body.Close()
-	if resp.StatusCode != 200 {
-		return nil, fmt.Errorf("swgohgg: unexpected status code %d", resp.StatusCode)
-	}
-	doc, err := goquery.NewDocumentFromReader(resp.Body)
-	if err != nil {
-		return nil, err
-	}
-	doc.Find(".collection-char-list .collection-char").Each(func(i int, s *goquery.Selection) {
-		char := parseChar(s)
-		roster = append(roster, char)
-	})
+	sort.Sort(ByStars(roster, false))
 	return roster, nil
 }
 
