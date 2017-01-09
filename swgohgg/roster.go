@@ -8,7 +8,7 @@ import (
 )
 
 func (c *Client) Roster() (roster Roster, err error) {
-	for page := 1; page <= 5 ; page++ {
+	for page := 1; page <= 5; page++ {
 		url := fmt.Sprintf("https://swgoh.gg/u/%s/collection/?page=%d", c.profile, page)
 		resp, err := c.hc.Get(url)
 		if err != nil {
@@ -16,7 +16,7 @@ func (c *Client) Roster() (roster Roster, err error) {
 		}
 		defer resp.Body.Close()
 		if resp.StatusCode == 404 {
-			break;
+			break
 		}
 		if resp.StatusCode != 200 {
 			return nil, fmt.Errorf("swgohgg: unexpected status code %d", resp.StatusCode)

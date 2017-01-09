@@ -153,7 +153,7 @@ func (f *ModFilter) Match(mod *Mod) bool {
 	if f.Char == "" {
 		return true
 	}
-	return f.Char == mod.UsingIn
+	return slug(CharName(f.Char)) == slug(mod.UsingIn)
 }
 
 type ModCollection []*Mod
