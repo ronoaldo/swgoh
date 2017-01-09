@@ -21,7 +21,7 @@ type Mod struct {
 	UsingIn string
 }
 
-func (m *Mod) String() string {
+func (m Mod) String() string {
 	return m.Format(false)
 }
 
@@ -102,15 +102,19 @@ func (m *Mod) ShapeName() string {
 }
 
 func (m *Mod) HasStat(stat string) bool {
+	return !m.GetStat(stat).IsZero()
+}
+
+func (m *Mod) GetStat(stat string) ModStat {
 	if m.PrimStat.Stat == stat || m.PrimStat.StatShortName() == stat {
-		return true
+		return m.PrimStat
 	}
 	for _, sec := range m.SecStat {
 		if sec.Stat == stat || sec.StatShortName() == stat {
-			return true
+			return sec
 		}
 	}
-	return false
+	return ModStat{}
 }
 
 type ModStat struct {
@@ -128,6 +132,21 @@ func (ms ModStat) String() string {
 
 func (ms ModStat) StatShortName() string {
 	return statAbbrev(ms.Stat)
+}
+
+func (ms ModStat) IsBetterThan(other ModStat) bool {
+	switch {
+	case ms.IsPercent && !other.IsPercent:
+		return false
+	case !ms.IsPercent && other.IsPercent:
+		return true
+	default:
+		return ms.Value > other.Value
+	}
+}
+
+func (ms ModStat) IsZero() bool {
+	return ms.Stat == "" && ms.Value == 0
 }
 
 func statAbbrev(stat string) string {
@@ -157,6 +176,26 @@ func (f *ModFilter) Match(mod *Mod) bool {
 }
 
 type ModCollection []*Mod
+
+func (m ModCollection) OptimizeSet(stat string) map[string]Mod {
+	set := make(map[string]Mod)
+	// Loop over all mods and find the best set for the given stat
+	for i := range m {
+		mod := m[i]
+		log.Printf("Optimizing mod %v", mod)
+		// Check if the mod has the stat
+		if mod.HasStat(stat) {
+			curr := set[mod.Shape]
+			currStat := curr.GetStat(stat)
+			thisStat := mod.GetStat(stat)
+			log.Printf("Mod has the stat %v, checking if it is the better than %v", thisStat, currStat)
+			if thisStat.IsBetterThan(currStat) {
+				set[mod.Shape] = *mod
+			}
+		}
+	}
+	return set
+}
 
 func (c *Client) Mods(filter ModFilter) (mods ModCollection, err error) {
 	page := 1
