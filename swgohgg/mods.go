@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/PuerkitoBio/goquery"
 	"log"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -136,6 +137,8 @@ func (ms ModStat) StatShortName() string {
 
 func (ms ModStat) IsBetterThan(other ModStat) bool {
 	switch {
+	case ms.IsZero():
+		return false
 	case ms.IsPercent && !other.IsPercent:
 		return false
 	case !ms.IsPercent && other.IsPercent:
@@ -177,24 +180,36 @@ func (f *ModFilter) Match(mod *Mod) bool {
 
 type ModCollection []*Mod
 
-func (m ModCollection) OptimizeSet(stat string) map[string]Mod {
+func (m ModCollection) OptimizeSet(stat string) ModSet {
 	set := make(map[string]Mod)
 	// Loop over all mods and find the best set for the given stat
 	for i := range m {
 		mod := m[i]
-		log.Printf("Optimizing mod %v", mod)
 		// Check if the mod has the stat
 		if mod.HasStat(stat) {
 			curr := set[mod.Shape]
 			currStat := curr.GetStat(stat)
 			thisStat := mod.GetStat(stat)
-			log.Printf("Mod has the stat %v, checking if it is the better than %v", thisStat, currStat)
-			if thisStat.IsBetterThan(currStat) {
+			isBetter := currStat.IsBetterThan(thisStat)
+			if !isBetter {
 				set[mod.Shape] = *mod
 			}
 		}
 	}
 	return set
+}
+
+type ModSet map[string]Mod
+
+func (set ModSet) Sum(stat string, isPercent bool) (res float64) {
+	for _, mod := range set {
+		stat := mod.GetStat(stat)
+		if stat.IsZero() || stat.IsPercent != isPercent {
+			continue
+		}
+		res += stat.Value
+	}
+	return
 }
 
 func (c *Client) Mods(filter ModFilter) (mods ModCollection, err error) {
@@ -223,6 +238,7 @@ func (c *Client) Mods(filter ModFilter) (mods ModCollection, err error) {
 		}
 		page++
 	}
+	sort.Sort(sortByShape{mods: mods, asc: true})
 	return mods, nil
 }
 

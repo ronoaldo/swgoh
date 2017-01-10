@@ -56,6 +56,7 @@ func main() {
 				mod := set[shape]
 				fmt.Println(mod)
 			}
+			fmt.Printf("Total: %.02f + %.02f%%\n", set.Sum(optimizeStat, false), set.Sum(optimizeStat, true))
 		} else {
 			filter := swgohgg.ModFilter{
 				Char: charFilter,

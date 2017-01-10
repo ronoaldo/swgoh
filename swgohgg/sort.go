@@ -22,3 +22,27 @@ func (bs sortByStars) Less(i, j int) bool {
 	}
 	return bs.chars[i].Stars > bs.chars[j].Stars
 }
+
+type sortByShape struct {
+	mods []*Mod
+	asc  bool
+}
+
+func (s sortByShape) Len() int      { return len(s.mods) }
+func (s sortByShape) Swap(i, j int) { s.mods[i], s.mods[j] = s.mods[j], s.mods[i] }
+
+func (s sortByShape) Less(i, j int) bool {
+	var less bool
+	a, b := s.mods[i], s.mods[j]
+	if a.Shape == b.Shape {
+		// If shapes are equal, compare ids
+		less = a.ID < b.ID
+	} else {
+		less = shapes[a.Shape] < shapes[b.Shape]
+	}
+
+	if s.asc {
+		return less
+	}
+	return !less
+}
