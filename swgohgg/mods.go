@@ -201,6 +201,19 @@ func (m ModCollection) OptimizeSet(stat string) ModSet {
 
 type ModSet map[string]Mod
 
+func (set ModSet) Add(mod *Mod) {
+	if mod == nil {
+		return
+	}
+	set[mod.Shape] = *mod
+}
+
+func (set ModSet) AddAll(mods []*Mod) {
+	for i := range mods {
+		set.Add(mods[i])
+	}
+}
+
 func (set ModSet) Sum(stat string, isPercent bool) (res float64) {
 	for _, mod := range set {
 		stat := mod.GetStat(stat)
