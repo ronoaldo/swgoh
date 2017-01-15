@@ -158,6 +158,8 @@ func CharName(src string) string {
 		return "Resistance Pilot"
 	case "rt":
 		return "Resistance Trooper"
+	case "rg", "royal":
+		return "Royal Guard"
 	case "savage", "so":
 		return "Savage Opress"
 	case "scarif", "srp":
