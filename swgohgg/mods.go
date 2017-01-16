@@ -180,7 +180,48 @@ func (f *ModFilter) Match(mod *Mod) bool {
 
 type ModCollection []*Mod
 
-func (m ModCollection) OptimizeSet(stat string) ModSet {
+func (m ModCollection) ByShape(shape string) (filtered ModCollection) {
+	for _, mod := range m {
+		if strings.ToLower(mod.Shape) == strings.ToLower(shape) {
+			filtered = append(filtered, mod)
+		}
+	}
+	log.Printf("DEBUG: Found %d %s", len(filtered), shape)
+	return
+}
+
+func (m ModCollection) WithStat(stat string) (filtered ModCollection) {
+	for _, mod := range m {
+		if mod.HasStat(stat) || mod.BonusSet == stat {
+			filtered = append(filtered, mod)
+		}
+	}
+	log.Printf("DEBUG: Found %d with %s", len(filtered), stat)
+	return
+}
+
+func (m ModCollection) MinLevel(level int) (filtered ModCollection) {
+	for _, mod := range m {
+		if mod.Level >= level {
+			filtered = append(filtered, mod)
+		}
+	}
+	log.Printf("DEBUG: Found %d with level %d", len(filtered), level)
+	return
+}
+
+func (m ModCollection) MinRarity(rarity int) (filtered ModCollection) {
+	for _, mod := range m {
+		if mod.Rarity >= rarity {
+			filtered = append(filtered, mod)
+		}
+	}
+	log.Printf("DEBUG: Found %d with ratity %d", len(filtered), rarity)
+	return
+}
+
+// SetWith suggests a set containing the max values of the provided stat.
+func (m ModCollection) SetWith(stat string) ModSet {
 	set := make(map[string]Mod)
 	// Loop over all mods and find the best set for the given stat
 	for i := range m {
@@ -199,6 +240,57 @@ func (m ModCollection) OptimizeSet(stat string) ModSet {
 	return set
 }
 
+// Optimize searches over all your mods with level >= 12, rarity >= 4,
+// and outputs a best-value for the given stat, considering
+// bonus sets if the 'percentIsBetter' parameter is true.
+// This is very experimental, CPU intensive and memory intensive!
+func (m ModCollection) Optimize(stat string, percentIsBetter bool) ModSet {
+	switch stat {
+	case "Accuracy", "Critical Damage", "Critical Chance", "Tenacity", "Potency":
+		percentIsBetter = true
+	}
+	optimized := ModSet{}
+	log.Printf("DEBUG: Combining all possible mod sets for %s. This may take a while...", stat)
+
+	transmitter := m.ByShape("Transmitter").WithStat(stat).MinLevel(12).MinRarity(4)
+	receiver := m.ByShape("Receiver").WithStat(stat).MinLevel(12).MinRarity(4)
+	processor := m.ByShape("Processor").WithStat(stat).MinLevel(12).MinRarity(4)
+	holoArray := m.ByShape("Holo-Array").WithStat(stat).MinLevel(12).MinRarity(4)
+	dataBus := m.ByShape("Data-Bus").WithStat(stat).MinLevel(12).MinRarity(4)
+	multiplexer := m.ByShape("Multiplexer").WithStat(stat).MinLevel(12).MinRarity(4)
+	totalSets := len(transmitter) * len(receiver) * len(processor) * len(holoArray) * len(dataBus) * len(multiplexer)
+	log.Printf("DEBUG: Analysing %d sets", totalSets)
+
+	count := 0
+	for _, t := range transmitter {
+		for _, r := range receiver {
+			for _, p := range processor {
+				for _, h := range holoArray {
+					for _, d := range dataBus {
+						for _, mu := range multiplexer {
+							count++
+							if count%1000000 == 0 {
+								log.Printf("Processed %.02f%%", 100*(float64(count)/float64(totalSets)))
+							}
+							set := ModSet{}
+							set.Add(t)
+							set.Add(r)
+							set.Add(p)
+							set.Add(h)
+							set.Add(d)
+							set.Add(mu)
+							if set.Sum(stat, percentIsBetter) > optimized.Sum(stat, percentIsBetter) {
+								optimized = set
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return optimized
+}
+
 type ModSet map[string]Mod
 
 func (set ModSet) Add(mod *Mod) {
@@ -214,7 +306,15 @@ func (set ModSet) AddAll(mods []*Mod) {
 	}
 }
 
+func (set ModSet) StatSummary() (result []string) {
+	for _, stat := range StatNames {
+		result = append(result, fmt.Sprintf("%.0f + %.02f%% %s", set.Sum(stat, false), set.Sum(stat, true), stat))
+	}
+	return
+}
+
 func (set ModSet) Sum(stat string, isPercent bool) (res float64) {
+	// First, acumulate the stat value
 	for _, mod := range set {
 		stat := mod.GetStat(stat)
 		if stat.IsZero() || stat.IsPercent != isPercent {
@@ -222,7 +322,56 @@ func (set ModSet) Sum(stat string, isPercent bool) (res float64) {
 		}
 		res += stat.Value
 	}
+	// Second, acumulate the bonus set values
+	if isPercent {
+		bonus := set.BonusForSet(stat)
+		res += bonus
+	}
 	return
+}
+
+func (set ModSet) BonusForSet(stat string) float64 {
+	mods := make([]*Mod, 0, len(set))
+	for i := range set {
+		m := set[i]
+		mods = append(mods, &m)
+	}
+	sort.Sort(sortByLevel{mods: mods, asc: false})
+	bonus := 0.0
+	maxed := true
+	count := 0
+	for _, mod := range mods {
+		if mod.BonusSet == stat {
+			if mod.Level < 15 {
+				maxed = false
+			}
+			count++
+
+			bonusVal, required := 0.0, 0
+			switch stat {
+			case "Health", "Defense", "Critical Chance":
+				bonusVal, required = 5, 2
+			case "Tenacity", "Potency":
+				bonusVal, required = 10, 2
+			case "Offense", "Speed":
+				bonusVal, required = 10, 4
+			case "Critical Damage":
+				bonusVal, required = 30, 4
+			}
+
+			if count == required {
+				// We got a bonus
+				if maxed {
+					bonus += bonusVal
+				} else {
+					bonus += bonusVal / 2
+				}
+				count = 0
+				maxed = true
+			}
+		}
+	}
+	return bonus
 }
 
 func (c *Client) Mods(filter ModFilter) (mods ModCollection, err error) {

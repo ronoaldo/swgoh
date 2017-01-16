@@ -7,6 +7,7 @@ import (
 var (
 	// ShapeNames
 	ShapeNames = []string{"Transmitter", "Receiver", "Processor", "Holo-Array", "Data-Bus", "Multiplexer"}
+	StatNames  = []string{"Speed", "Critical Chance", "Critical Damage", "Critical Avoidance", "Accuracy", "Potency", "Tenacity", "Offense", "Defense", "Health", "Protection"}
 
 	shapes = map[string]int{
 		"Transmitter": 1,

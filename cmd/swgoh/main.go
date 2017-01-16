@@ -12,6 +12,7 @@ var (
 	starLevel    int
 	charFilter   string
 	optimizeStat string
+	shape        string
 	showRoster   bool
 	showMods     bool
 )
@@ -27,6 +28,7 @@ func init() {
 	flag.IntVar(&starLevel, "stars", 0, "The minimal character or mod `stars` to display")
 	flag.StringVar(&charFilter, "char", "", "Restrict mods used by this `character`")
 	flag.StringVar(&optimizeStat, "optimize", "", "Build a set optimized with this `stat`")
+	flag.StringVar(&shape, "shape", "", "Filter mods by this `shape`")
 }
 
 func main() {
@@ -51,12 +53,14 @@ func main() {
 			if err != nil {
 				log.Fatal(err)
 			}
-			set := mods.OptimizeSet(optimizeStat)
+			set := mods.Optimize(optimizeStat, false)
 			for _, shape := range swgohgg.ShapeNames {
 				mod := set[shape]
 				fmt.Println(mod)
 			}
-			fmt.Printf("Total: %.02f + %.02f%%\n", set.Sum(optimizeStat, false), set.Sum(optimizeStat, true))
+			for _, s := range set.StatSummary() {
+				fmt.Println(s)
+			}
 		} else {
 			filter := swgohgg.ModFilter{
 				Char: charFilter,
@@ -64,6 +68,9 @@ func main() {
 			mods, err := swgg.Mods(filter)
 			if err != nil {
 				log.Fatal(err)
+			}
+			if shape != "" {
+				mods = mods.ByShape(shape)
 			}
 			for _, mod := range mods {
 				fmt.Println(mod)

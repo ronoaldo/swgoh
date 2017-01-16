@@ -46,3 +46,21 @@ func (s sortByShape) Less(i, j int) bool {
 	}
 	return !less
 }
+
+type sortByLevel struct {
+	mods []*Mod
+	asc  bool
+}
+
+func (s sortByLevel) Len() int      { return len(s.mods) }
+func (s sortByLevel) Swap(i, j int) { s.mods[i], s.mods[j] = s.mods[j], s.mods[i] }
+
+func (s sortByLevel) Less(i, j int) bool {
+	var less bool
+	a, b := s.mods[i], s.mods[j]
+	less = a.Level < b.Level
+	if s.asc {
+		return less
+	}
+	return !less
+}
