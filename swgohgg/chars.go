@@ -51,7 +51,7 @@ func CharName(src string) string {
 	case "fives", "5s":
 		return "CT-5555 \"Fives\""
 	case "rex":
-		return "CT-7667 \"Rex\""
+		return "CT-7567 \"Rex\""
 	case "maul":
 		return "Darth Maul"
 	case "sidious":
