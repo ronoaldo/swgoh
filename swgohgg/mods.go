@@ -220,6 +220,15 @@ func (m ModCollection) MinRarity(rarity int) (filtered ModCollection) {
 	return
 }
 
+func (m ModCollection) Filter(filter ModFilter) (filtered ModCollection) {
+	for _, mod := range m {
+		if filter.Match(mod) {
+			filtered = append(filtered, mod)
+		}
+	}
+	return filtered
+}
+
 // SetWith suggests a set containing the max values of the provided stat.
 func (m ModCollection) SetWith(stat string) ModSet {
 	set := make(map[string]Mod)
@@ -390,9 +399,7 @@ func (c *Client) Mods(filter ModFilter) (mods ModCollection, err error) {
 		count := 0
 		doc.Find(".collection-mod").Each(func(i int, s *goquery.Selection) {
 			mod := parseMod(s)
-			if filter.Match(mod) {
-				mods = append(mods, mod)
-			}
+			mods = append(mods, mod)
 			count++
 		})
 		if count < 60 {
@@ -400,6 +407,7 @@ func (c *Client) Mods(filter ModFilter) (mods ModCollection, err error) {
 		}
 		page++
 	}
+	mods = mods.Filter(filter)
 	sort.Sort(sortByShape{mods: mods, asc: true})
 	return mods, nil
 }
