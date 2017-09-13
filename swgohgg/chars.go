@@ -6,19 +6,19 @@ import (
 
 func CharName(src string) string {
 	switch strings.ToLower(src) {
-	case "aa":
+	case "aa", "ackbar":
 		return "Admiral Ackbar"
 	case "ayla", "aayla":
 		return "Aayla Secura"
 	case "ahsoka", "asoka":
 		return "Ahsoka Tano"
-	case "asaj", "asajj":
+	case "asaj", "asajj", "ventres", "ventress", "asajj ventress":
 		return "Asajj Ventress"
-	case "b2":
+	case "b2", "b2 battle droid":
 		return "B2 Super Battle Droid"
-	case "barris", "baris", "barriss":
+	case "barris", "baris", "barriss", "offee", "zarris":
 		return "Barriss Offee"
-	case "baze":
+	case "baze", "baze malbus":
 		return "Baze Malbus"
 	case "biggs":
 		return "Biggs Darklighter"
