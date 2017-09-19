@@ -2,11 +2,12 @@ package swgohgg
 
 import (
 	"fmt"
-	"github.com/PuerkitoBio/goquery"
 	"log"
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/PuerkitoBio/goquery"
 )
 
 type Mod struct {
@@ -402,7 +403,7 @@ func (c *Client) Mods(filter ModFilter) (mods ModCollection, err error) {
 			mods = append(mods, mod)
 			count++
 		})
-		if count < 60 {
+		if count < (12 * 3) {
 			break
 		}
 		page++
