@@ -74,6 +74,8 @@ func CharName(src string) string {
 		return "First Order Stormtrooper"
 	case "fotp":
 		return "First Order TIE Pilot"
+	case "gar", "saxon":
+		return "Gar Saxon"
 	case "gamorrean", "guard", "pig":
 		return "Gamorrean Guard"
 	case "gg", "grevous", "grievous", "grivous":
@@ -86,6 +88,8 @@ func CharName(src string) string {
 		return "Geonosian Soldier"
 	case "spy", "gspy":
 		return "Geonosian Spy"
+	case "gat", "thrawn":
+		return "Grand Admiral Thrawn"
 	case "yoda", "gmy":
 		return "Grand Master Yoda"
 	case "tarkin", "moff":
@@ -104,6 +108,8 @@ func CharName(src string) string {
 		return "IG-88"
 	case "ima", "igd":
 		return "Ima-Gun Di"
+	case "isc":
+		return "Imperial Super Commando"
 	case "je", "engineer":
 		return "Jawa Engineer"
 	case "scavenger":
@@ -124,8 +130,8 @@ func CharName(src string) string {
 		return "Kylo Ren"
 	case "lando":
 		return "Lando Calrissian"
-	case "luke":
-		return "Luke Skywalker"
+	case "luke", "luke skywalker":
+		return "Luke Skywalker (Farmboy)"
 	case "lumi", "luminara":
 		return "Luminara Unduli"
 	case "mace", "windu":
