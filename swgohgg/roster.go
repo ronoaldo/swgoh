@@ -2,12 +2,13 @@ package swgohgg
 
 import (
 	"fmt"
-	"github.com/PuerkitoBio/goquery"
 	"sort"
 	"strconv"
+
+	"github.com/PuerkitoBio/goquery"
 )
 
-func (c *Client) Roster() (roster Roster, err error) {
+func (c *Client) Collection() (roster Collection, err error) {
 	for page := 1; page <= 5; page++ {
 		url := fmt.Sprintf("https://swgoh.gg/u/%s/collection/?page=%d", c.profile, page)
 		resp, err := c.hc.Get(url)
@@ -36,9 +37,9 @@ func (c *Client) Roster() (roster Roster, err error) {
 	return roster, nil
 }
 
-type Roster []*Char
+type Collection []*Char
 
-func (r Roster) Contains(char string) bool {
+func (r Collection) Contains(char string) bool {
 	for i := range r {
 		if r[i].Name == char {
 			return true
@@ -47,7 +48,7 @@ func (r Roster) Contains(char string) bool {
 	return false
 }
 
-func (r Roster) ContainsAll(chars ...string) bool {
+func (r Collection) ContainsAll(chars ...string) bool {
 	for _, char := range chars {
 		if !r.Contains(char) {
 			return false
