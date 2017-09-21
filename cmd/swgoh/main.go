@@ -4,26 +4,27 @@ import (
 	"flag"
 	"fmt"
 	"log"
+
 	"ronoaldo.gopkg.net/swgoh/swgohgg"
 )
 
 var (
-	profile      string
-	starLevel    int
-	charFilter   string
-	optimizeStat string
-	maxStat      string
-	shape        string
-	showRoster   bool
-	showMods     bool
-	useCache     bool
+	profile        string
+	starLevel      int
+	charFilter     string
+	optimizeStat   string
+	maxStat        string
+	shape          string
+	showCollection bool
+	showMods       bool
+	useCache       bool
 )
 
 func init() {
 	flag.StringVar(&profile, "profile", "", "The user `profile` on https://swgoh.gg/")
 
 	// Operation flags
-	flag.BoolVar(&showRoster, "roster", false, "Show user character collection")
+	flag.BoolVar(&showCollection, "collection", false, "Show user character collection")
 	flag.BoolVar(&showMods, "mods", false, "Show user mods collection")
 
 	// Cache flags
@@ -37,23 +38,23 @@ func init() {
 	flag.StringVar(&shape, "shape", "", "Filter mods by this `shape`")
 }
 
-func fetchRoster(swgg *swgohgg.Client) (roster swgohgg.Roster, err error) {
-	log.Printf("Fetching roster ...")
-	roster = make(swgohgg.Roster, 0)
-	err = loadCache("roster", &roster)
+func fetchCollection(swgg *swgohgg.Client) (collection swgohgg.Collection, err error) {
+	log.Printf("Fetching collection ...")
+	collection = make(swgohgg.Collection, 0)
+	err = loadCache("collection", &collection)
 	if err != nil {
 		log.Printf("Data not cached, loading from website (%v)", err)
-		roster, err = swgg.Roster()
+		collection, err = swgg.Collection()
 		if err != nil {
 			log.Fatal(err)
 		}
 		if useCache {
-			if err = saveCache("roster", &roster); err != nil {
+			if err = saveCache("collection", &collection); err != nil {
 				log.Printf("Can't save to cache: %v", err)
 			}
 		}
 	}
-	return roster, nil
+	return collection, nil
 }
 
 var modFilterAll = swgohgg.ModFilter{}
@@ -80,12 +81,12 @@ func main() {
 	flag.Parse()
 	swgg := swgohgg.NewClient(profile)
 
-	if showRoster {
-		roster, err := fetchRoster(swgg)
+	if showCollection {
+		collection, err := fetchCollection(swgg)
 		if err != nil {
 			log.Fatal(err)
 		}
-		for _, char := range roster {
+		for _, char := range collection {
 			if char.Stars >= starLevel {
 				fmt.Println(char)
 			}
