@@ -30,6 +30,8 @@ func CharName(src string) string {
 		return "Captain Phasma"
 	case "cassian":
 		return "Cassian Endor"
+	case "cls", "commander luke":
+		return "Commander Luke Skywalker"
 	case "cody":
 		return "CT-2224 \"Cody\""
 	case "chirpa":
@@ -160,6 +162,8 @@ func CharName(src string) string {
 		return "Princess Leia"
 	case "qgj", "quigon", "qui-gon":
 		return "Qui-Gon Jin"
+	case "r2d2", "r2":
+		return "R2-D2"
 	case "rp":
 		return "Resistance Pilot"
 	case "rt":
