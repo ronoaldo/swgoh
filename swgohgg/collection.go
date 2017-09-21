@@ -4,37 +4,25 @@ import (
 	"fmt"
 	"sort"
 	"strconv"
+	"strings"
 
 	"github.com/PuerkitoBio/goquery"
 )
 
-func (c *Client) Collection() (roster Collection, err error) {
-	for page := 1; page <= 5; page++ {
-		url := fmt.Sprintf("https://swgoh.gg/u/%s/collection/?page=%d", c.profile, page)
-		resp, err := c.hc.Get(url)
-		if err != nil {
-			return nil, err
-		}
-		defer resp.Body.Close()
-		if resp.StatusCode == 404 {
-			break
-		}
-		if resp.StatusCode != 200 {
-			return nil, fmt.Errorf("swgohgg: unexpected status code %d", resp.StatusCode)
-		}
-		doc, err := goquery.NewDocumentFromReader(resp.Body)
-		if err != nil {
-			return nil, err
-		}
-		doc.Find(".collection-char-list .collection-char").Each(func(i int, s *goquery.Selection) {
-			char := parseChar(s)
-			if !roster.Contains(char.Name) {
-				roster = append(roster, char)
-			}
-		})
+func (c *Client) Collection() (collection Collection, err error) {
+	url := fmt.Sprintf("https://swgoh.gg/u/%s/collection/", c.profile)
+	doc, err := c.Get(url)
+	if err != nil {
+		return nil, err
 	}
-	sort.Sort(ByStars(roster, false))
-	return roster, nil
+	doc.Find(".collection-char-list .collection-char").Each(func(i int, s *goquery.Selection) {
+		char := parseChar(s)
+		if !collection.Contains(char.Name) {
+			collection = append(collection, char)
+		}
+	})
+	sort.Sort(ByStars(collection, false))
+	return collection, nil
 }
 
 type Collection []*Char
@@ -120,4 +108,111 @@ func gearLevel(s *goquery.Selection) int {
 	default:
 		return 0
 	}
+}
+
+type CharacterStats struct {
+	Name  string
+	Level int64
+	Stars int64
+
+	// Current character gallactic power
+	GalacticPower int64
+
+	// List of skils of this character
+	Skills []Skill
+
+	// Basic Stats
+	STR                int64
+	AGI                int64
+	INT                int64
+	StrenghGrowth      float64
+	AgilityGrowth      float64
+	IntelligenceGrowth float64
+
+	// General
+	Health         int64
+	Protection     int64
+	Speed          int64
+	CriticalDamage int64
+	Potency        float64
+	Tenacity       float64
+	HealthSteal    int64
+}
+
+type Skill struct {
+	Name  string
+	Level int64
+}
+
+func (c *Client) CharacterStats(char string) (*CharacterStats, error) {
+	charSlug := CharSlug(CharName(char))
+	doc, err := c.Get(fmt.Sprintf("https://swgoh.gg/u/%s/collection/%s/", c.profile, charSlug))
+	if err != nil {
+		return nil, err
+	}
+
+	charStats := &CharacterStats{}
+	charStats.Name = doc.Find(".pc-char-overview-name").Text()
+	charStats.Level = atoi(doc.Find(".char-portrait-full-level").Text())
+	charStats.Stars = int64(stars(doc.Find(".player-char-portrait")))
+	charStats.GalacticPower = atoi(doc.Find(".unit-gp-stat-amount-current").First().Text())
+	// Skills
+	doc.Find(".pc-skills-list").First().Find(".pc-skill").Each(func(i int, s *goquery.Selection) {
+		skill := Skill{}
+		skill.Name = s.Find(".pc-skill-name").First().Text()
+		skill.Level = skillLevel(s)
+		charStats.Skills = append(charStats.Skills, skill)
+	})
+	//Stats
+	doc.Find(".media-body .pc-stat").Each(func(i int, s *goquery.Selection) {
+		name, value := s.Find(".pc-stat-label").Text(), s.Find(".pc-stat-value").Text()
+		switch strings.TrimSpace(name) {
+		case "Strength (STR)":
+			charStats.STR = atoi(value)
+		case "Agility (AGI)":
+			charStats.AGI = atoi(value)
+		case "Intelligence (INT)":
+			charStats.INT = atoi(value)
+		case "Strength Growth":
+			charStats.StrenghGrowth = float64(atoi(value)) / 10
+		case "Agility Growth":
+			charStats.AgilityGrowth = float64(atoi(value)) / 10
+		case "Intelligence Growth":
+			charStats.IntelligenceGrowth = float64(atoi(value)) / 10
+		case "Health":
+			charStats.Health = atoi(value)
+		case "Protection":
+			charStats.Protection = atoi(value)
+		case "Speed":
+			charStats.Speed = atoi(value)
+		case "Critical Damage":
+			charStats.CriticalDamage = atoi(value)
+		case "Potency":
+			charStats.Potency = float64(atoi(value)) / 100.0
+		case "Tenacity":
+			charStats.Tenacity = float64(atoi(value)) / 100.0
+		case "Health Steal":
+			charStats.HealthSteal = atoi(value)
+		}
+	})
+	return charStats, nil
+}
+
+func skillLevel(s *goquery.Selection) int64 {
+	title := s.Find(".pc-skill-levels").First().AttrOr("data-title", "Level -1")
+	// Title is in the form 'Level X of Y'
+	fields := strings.Fields(title)
+	if len(fields) >= 2 {
+		return atoi(fields[1])
+	}
+	return -1
+}
+
+// atoi best-effort convertion to int, return 0 if unparseable
+func atoi(src string) int64 {
+	src = strings.Replace(src, ",", "", -1)
+	src = strings.Replace(src, ".", "", -1)
+	src = strings.Replace(src, "%", "", -1)
+	v, _ := strconv.ParseInt(src, 10, 64)
+	return v
 }
