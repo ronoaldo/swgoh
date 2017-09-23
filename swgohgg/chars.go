@@ -62,6 +62,8 @@ func CharName(src string) string {
 		return "Darth Vader"
 	case "datcha":
 		return "Dathcha"
+	case "dt", "death":
+		return "Death Trooper"
 	case "eeth", "eth", "ek":
 		return "Eeth Koth"
 	case "palpatine", "emperor", "ep", "ip":

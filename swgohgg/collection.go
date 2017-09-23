@@ -111,9 +111,10 @@ func gearLevel(s *goquery.Selection) int {
 }
 
 type CharacterStats struct {
-	Name  string
-	Level int64
-	Stars int64
+	Name      string
+	Level     int64
+	GearLevel int64
+	Stars     int64
 
 	// Current character gallactic power
 	GalacticPower int64
@@ -155,6 +156,10 @@ func (c *Client) CharacterStats(char string) (*CharacterStats, error) {
 	charStats.Name = doc.Find(".pc-char-overview-name").Text()
 	charStats.Level = atoi(doc.Find(".char-portrait-full-level").Text())
 	charStats.Stars = int64(stars(doc.Find(".player-char-portrait")))
+	gearInfo := strings.Split(doc.Find(".pc-gear").First().Find(".pc-heading").First().AttrOr("title", "Gear -1 "), " ")
+	if len(gearInfo) > 1 {
+		charStats.GearLevel = atoi(gearInfo[1])
+	}
 	charStats.GalacticPower = atoi(doc.Find(".unit-gp-stat-amount-current").First().Text())
 	// Skills
 	doc.Find(".pc-skills-list").First().Find(".pc-skill").Each(func(i int, s *goquery.Selection) {
