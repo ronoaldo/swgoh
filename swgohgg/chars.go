@@ -29,7 +29,7 @@ func CharName(src string) string {
 	case "phasma":
 		return "Captain Phasma"
 	case "cassian":
-		return "Cassian Endor"
+		return "Cassian Andor"
 	case "cls", "commander luke":
 		return "Commander Luke Skywalker"
 	case "cody":
