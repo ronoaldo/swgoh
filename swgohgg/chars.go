@@ -64,7 +64,7 @@ func CharName(src string) string {
 		return "Darth Vader"
 	case "datcha":
 		return "Dathcha"
-	case "dt", "death", "death trooper":
+	case "dt", "death", "death trooper", "deathtrooper":
 		return "Death Trooper"
 	case "dk", "krennic", "krenic", "director krenic", "director krennic":
 		return "Director Krennic"
