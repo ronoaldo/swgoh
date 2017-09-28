@@ -26,7 +26,6 @@ func (c *Client) Zetas() (zetas []Ability, err error) {
 		}
 		aux := make([]Ability, 0)
 		doc.Find(".media-list-stream .character h5").Each(func(i int, s *goquery.Selection) {
-			log.Printf("Ability: %s", s.Text())
 			// Commander Luke Skywalker · Rebel Maneuvers
 			split := strings.Split(s.Text(), " · ")
 			if len(split) >= 2 {
@@ -39,7 +38,6 @@ func (c *Client) Zetas() (zetas []Ability, err error) {
 				log.Printf("> Skipped (len=%d)", len(split))
 			}
 		})
-		log.Printf("%d found on page %d", len(aux), page)
 		if len(aux) == 0 {
 			break
 		}

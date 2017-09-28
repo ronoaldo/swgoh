@@ -10,33 +10,35 @@ func CharName(src string) string {
 		return "Admiral Ackbar"
 	case "ayla", "aayla":
 		return "Aayla Secura"
-	case "ahsoka", "asoka":
+	case "ahsoka", "asoka", "ahsoka tano":
 		return "Ahsoka Tano"
 	case "asaj", "asajj", "ventres", "ventress", "asajj ventress":
 		return "Asajj Ventress"
-	case "b2", "b2 battle droid":
+	case "b2", "b2 battle droid", "b2 super battle droid":
 		return "B2 Super Battle Droid"
-	case "barris", "baris", "barriss", "offee", "zarris":
+	case "barris", "baris", "barriss", "offee", "zarris", "barriss offee":
 		return "Barriss Offee"
 	case "baze", "baze malbus":
 		return "Baze Malbus"
-	case "biggs":
+	case "biggs", "biggs darklighter":
 		return "Biggs Darklighter"
-	case "boba":
+	case "boba", "boba fett":
 		return "Boba Fett"
-	case "bane", "cad":
+	case "bane", "cad", "cad bane":
 		return "Cad Bane"
-	case "phasma":
+	case "cholo", "captain han solo":
+		return "Captain Han Solo"
+	case "phasma", "captain phasma":
 		return "Captain Phasma"
-	case "cassian":
+	case "cassian", "cassian andor":
 		return "Cassian Andor"
-	case "cls", "commander luke":
+	case "cls", "commander luke", "commander luke skywalker":
 		return "Commander Luke Skywalker"
 	case "cody":
 		return "CT-2224 \"Cody\""
-	case "chirpa":
+	case "chirpa", "chief chirpa":
 		return "Chief Chirpa"
-	case "nebit":
+	case "nebit", "chief nebit":
 		return "Chief Nebit"
 	case "chirrut":
 		return "Chirrut Îmwe"
@@ -46,7 +48,7 @@ func CharName(src string) string {
 		return "Clone Wars Chewbacca"
 	case "cup", "coruscant":
 		return "Coruscant Underworld Police"
-	case "dooku", "dokan", "dookan":
+	case "dooku", "dokan", "dookan", "count dooku":
 		return "Count Dooku"
 	case "echo":
 		return "CT-21-0408 \"Echo\""
@@ -54,23 +56,25 @@ func CharName(src string) string {
 		return "CT-5555 \"Fives\""
 	case "rex":
 		return "CT-7567 \"Rex\""
-	case "maul":
+	case "maul", "darth maul":
 		return "Darth Maul"
-	case "sidious":
+	case "sidious", "sid", "darth sidious":
 		return "Darth Sidious"
-	case "vader":
+	case "vader", "darth vader":
 		return "Darth Vader"
 	case "datcha":
 		return "Dathcha"
-	case "dt", "death":
+	case "dt", "death", "death trooper":
 		return "Death Trooper"
+	case "dk", "krennic", "krenic", "director krenic", "director krennic":
+		return "Director Krennic"
 	case "eeth", "eth", "ek":
 		return "Eeth Koth"
-	case "palpatine", "emperor", "ep", "ip":
+	case "palpatine", "emperor", "ep", "ip", "emperor palpatine":
 		return "Emperor Palpatine"
-	case "ee", "elder", "anciao", "ancião":
+	case "ee", "elder", "anciao", "ancião", "ewok elder":
 		return "Ewok Elder"
-	case "es":
+	case "es", "ewok scout":
 		return "Ewok Scout"
 	case "foo":
 		return "First Order Officer"
@@ -78,13 +82,13 @@ func CharName(src string) string {
 		return "First Order Stormtrooper"
 	case "fotp":
 		return "First Order TIE Pilot"
-	case "gar", "saxon":
+	case "gar", "saxon", "gar saxon":
 		return "Gar Saxon"
-	case "gamorrean", "guard", "pig":
+	case "gamorrean", "pig":
 		return "Gamorrean Guard"
 	case "gg", "grevous", "grievous", "grivous":
 		return "General Grievous"
-	case "kenobi", "gk":
+	case "kenobi", "gk", "general kenobi":
 		return "General Kenobi"
 	case "veers":
 		return "General Veers"

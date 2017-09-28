@@ -137,7 +137,10 @@ type CharacterStats struct {
 	CriticalDamage int64
 	Potency        float64
 	Tenacity       float64
-	HealthSteal    int64
+	HealthSteal    float64
+
+	PhysicalDamage int64
+	SpecialDamate  int64
 }
 
 type Skill struct {
@@ -179,11 +182,11 @@ func (c *Client) CharacterStats(char string) (*CharacterStats, error) {
 		case "Intelligence (INT)":
 			charStats.INT = atoi(value)
 		case "Strength Growth":
-			charStats.StrenghGrowth = float64(atoi(value)) / 10
+			charStats.StrenghGrowth = atof(value)
 		case "Agility Growth":
-			charStats.AgilityGrowth = float64(atoi(value)) / 10
+			charStats.AgilityGrowth = atof(value)
 		case "Intelligence Growth":
-			charStats.IntelligenceGrowth = float64(atoi(value)) / 10
+			charStats.IntelligenceGrowth = atof(value)
 		case "Health":
 			charStats.Health = atoi(value)
 		case "Protection":
@@ -193,11 +196,15 @@ func (c *Client) CharacterStats(char string) (*CharacterStats, error) {
 		case "Critical Damage":
 			charStats.CriticalDamage = atoi(value)
 		case "Potency":
-			charStats.Potency = float64(atoi(value)) / 100.0
+			charStats.Potency = atof(value)
 		case "Tenacity":
-			charStats.Tenacity = float64(atoi(value)) / 100.0
+			charStats.Tenacity = atof(value)
 		case "Health Steal":
-			charStats.HealthSteal = atoi(value)
+			charStats.HealthSteal = atof(value)
+		case "Physical Damage":
+			charStats.PhysicalDamage = atoi(value)
+		case "Special Damage":
+			charStats.SpecialDamate = atoi(value)
 		}
 	})
 	return charStats, nil
@@ -211,6 +218,12 @@ func skillLevel(s *goquery.Selection) int64 {
 		return atoi(fields[1])
 	}
 	return -1
+}
+
+func atof(src string) float64 {
+	src = strings.Replace(src, "%", "", -1)
+	v, _ := strconv.ParseFloat(src, 64)
+	return v
 }
 
 // atoi best-effort convertion to int, return 0 if unparseable
