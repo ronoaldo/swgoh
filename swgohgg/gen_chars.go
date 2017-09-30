@@ -20,6 +20,8 @@ func CharSlug(charName string) string {
 		return "barriss-offee"
 	case `baze malbus`:
 		return "baze-malbus"
+	case `bb-8`:
+		return "bb-8"
 	case `biggs darklighter`:
 		return "biggs-darklighter"
 	case `bistan`:
