@@ -35,7 +35,7 @@ func CharName(src string) string {
 	case "cls", "commander luke", "commander luke skywalker":
 		return "Commander Luke Skywalker"
 	case "cody":
-		return "CT-2224 \"Cody\""
+		return "CC-2224 \"Cody\""
 	case "chirpa", "chief chirpa":
 		return "Chief Chirpa"
 	case "nebit", "chief nebit":
@@ -76,6 +76,8 @@ func CharName(src string) string {
 		return "Ewok Elder"
 	case "es", "ewok scout":
 		return "Ewok Scout"
+	case "ezra", "ezra bridger":
+		return "Ezra Bridger"
 	case "foo":
 		return "First Order Officer"
 	case "fost":
