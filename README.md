@@ -1,12 +1,12 @@
 # swgoh.gg crawler and CLI tool
 
 For Star Wars Galaxy of Heroes players and tech savvy,
-tools provided in this reposity allows them to crawl and use
-their data synced to https://swgoh.gg website.
+tools provided in this repository allows them to crawl and use
+their data synced to the https://swgoh.gg website.
 
 ## API for Go lang
 
-A package that crawls and fetch data is available at
+A package that crawls and fetches data is available at
 
 	ronoaldo.gopkg.net/swgoh/swgohgg
 
@@ -20,10 +20,10 @@ characters and mods.
 
 ### Install or Download
 
-If you just want to use it, go to the [Relase Page](https://github.com/ronoaldo/swgoh/releases)
+If you just want to use it, go to the [Release Page](https://github.com/ronoaldo/swgoh/releases)
 and download the one for your operating system.
 
-From the command prompt, you can also run this commands if
+From the command prompt, you can also run these commands if
 you have Go setup and ready:
 
 	go get ronoaldo.gopkg.net/swgoh/cmd/swgoh
@@ -47,7 +47,7 @@ level, and stars.
 To list your characters, you can use the following
 command:
 
-	swgoh -profile ronoaldo -chars
+	swgoh -profile ronoaldo -collection
 
 The result is a CSV list of your characters, their
 level, stars and gear level.
@@ -55,7 +55,7 @@ level, stars and gear level.
 ### Mods and Mod Set suggestions
 
 The tool has some experimental mod suggestion, and is also
-capable to export your mdos into CSV format for your
+capable to export your mods into CSV format for you
 spreadsheet lovers.
 
 	swgoh -profile ronoaldo -mods
