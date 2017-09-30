@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 
+	"gopkg.in/yaml.v2"
+
 	"ronoaldo.gopkg.net/swgoh/swgohgg"
 )
 
@@ -17,6 +19,7 @@ var (
 	shape          string
 	showCollection bool
 	showMods       bool
+	showStats      bool
 	useCache       bool
 )
 
@@ -26,6 +29,7 @@ func init() {
 	// Operation flags
 	flag.BoolVar(&showCollection, "collection", false, "Show user character collection")
 	flag.BoolVar(&showMods, "mods", false, "Show user mods collection")
+	flag.BoolVar(&showStats, "stats", false, "Show a single character stats (requires -char)")
 
 	// Cache flags
 	flag.BoolVar(&useCache, "cache", true, "Use cache to save mod query")
@@ -77,9 +81,27 @@ func fetchMods(swgg *swgohgg.Client) (mods swgohgg.ModCollection, err error) {
 	return mods, nil
 }
 
+func fetchStats(swgg *swgohgg.Client) (stats *swgohgg.CharacterStats, err error) {
+	// TODO(ronoaldo) add cache support for stats
+	return swgg.CharacterStats(charFilter)
+}
+
 func main() {
 	flag.Parse()
 	swgg := swgohgg.NewClient(profile)
+
+	if showStats {
+		stats, err := fetchStats(swgg)
+		if err != nil {
+			log.Fatal(err)
+		}
+		b, err := yaml.Marshal(stats)
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Printf("Stats for %s's '%s':\n", profile, charFilter)
+		fmt.Println(string(b))
+	}
 
 	if showCollection {
 		collection, err := fetchCollection(swgg)

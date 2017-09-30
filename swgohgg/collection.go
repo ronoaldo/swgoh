@@ -29,7 +29,7 @@ type Collection []*Char
 
 func (r Collection) Contains(char string) bool {
 	for i := range r {
-		if r[i].Name == char {
+		if strings.ToLower(r[i].Name) == strings.ToLower(char) {
 			return true
 		}
 	}
@@ -152,7 +152,7 @@ func (c *Client) CharacterStats(char string) (*CharacterStats, error) {
 	charSlug := CharSlug(CharName(char))
 	doc, err := c.Get(fmt.Sprintf("https://swgoh.gg/u/%s/collection/%s/", c.profile, charSlug))
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("swgohgg: profile %s may not have %s activated.", c.profile, CharName(char))
 	}
 
 	charStats := &CharacterStats{}

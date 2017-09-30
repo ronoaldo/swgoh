@@ -205,5 +205,5 @@ func CharName(src string) string {
 	case "zam", "zw":
 		return "Zam Wesell"
 	}
-	return src
+	return strings.Title(src)
 }
