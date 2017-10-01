@@ -23,6 +23,30 @@ func (bs sortByStars) Less(i, j int) bool {
 	return bs.chars[i].Stars > bs.chars[j].Stars
 }
 
+type sortByShipStars struct {
+	ships []*Ship
+	asc   bool
+}
+
+func ByShipStars(ships []*Ship, ascending bool) sortByShipStars {
+	return sortByShipStars{
+		ships: ships,
+		asc:   ascending,
+	}
+}
+
+func (bs sortByShipStars) Len() int { return len(bs.ships) }
+
+func (bs sortByShipStars) Swap(i, j int) { bs.ships[i], bs.ships[j] = bs.ships[j], bs.ships[i] }
+
+func (bs sortByShipStars) Less(i, j int) bool {
+	if bs.asc {
+		return bs.ships[i].Stars < bs.ships[j].Stars
+	}
+	return bs.ships[i].Stars > bs.ships[j].Stars
+}
+
+
 type sortByShape struct {
 	mods []*Mod
 	asc  bool

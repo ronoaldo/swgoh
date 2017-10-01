@@ -32,6 +32,16 @@ To see the full list of available options, run:
 
 	swgoh --help
 
+### Ships list
+
+To list your ships, you can use the following
+command:
+
+	swgoh -profile ronoaldo -ships
+
+The result is a CSV list of your ships, their
+level, and stars.
+
 ### Character list
 
 To list your characters, you can use the following

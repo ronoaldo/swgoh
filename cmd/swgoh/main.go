@@ -18,6 +18,7 @@ var (
 	maxStat        string
 	shape          string
 	showCollection bool
+	showShips      bool
 	showMods       bool
 	showStats      bool
 	useCache       bool
@@ -28,6 +29,7 @@ func init() {
 
 	// Operation flags
 	flag.BoolVar(&showCollection, "collection", false, "Show user character collection")
+	flag.BoolVar(&showShips, "ships", false, "Show user ships collection")
 	flag.BoolVar(&showMods, "mods", false, "Show user mods collection")
 	flag.BoolVar(&showStats, "stats", false, "Show a single character stats (requires -char)")
 
@@ -59,6 +61,25 @@ func fetchCollection(swgg *swgohgg.Client) (collection swgohgg.Collection, err e
 		}
 	}
 	return collection, nil
+}
+
+func fetchShips(swgg *swgohgg.Client) (ships swgohgg.Ships, err error) {
+	log.Printf("Fetching ships ...")
+	ships = make(swgohgg.Ships, 0)
+	err = loadCache("ships", &ships)
+	if err != nil {
+		log.Printf("Data not cached, loading from website (%v)", err)
+		ships, err = swgg.Ships()
+		if err != nil {
+			log.Fatal(err)
+		}
+		if useCache {
+			if err = saveCache("ships", &ships); err != nil {
+				log.Printf("Can't save to cache: %v", err)
+			}
+		}
+	}
+	return ships, nil
 }
 
 var modFilterAll = swgohgg.ModFilter{}
@@ -111,6 +132,18 @@ func main() {
 		for _, char := range collection {
 			if char.Stars >= starLevel {
 				fmt.Println(char)
+			}
+		}
+	}
+
+	if showShips {
+		ships, err := fetchShips(swgg)
+		if err != nil {
+			log.Fatal(err)
+		}
+		for _, ship := range ships {
+			if ship.Stars >= starLevel {
+				fmt.Println(ship)
 			}
 		}
 	}
