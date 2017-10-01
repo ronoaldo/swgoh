@@ -26,7 +26,7 @@ func (c *Client) Get(url string) (*goquery.Document, error) {
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode == 404 {
-		return nil, fmt.Errorf("swgohgg: unable to find collection for profile %s", c.profile)
+		return nil, fmt.Errorf("swgohgg: unable to find collection for profile '%s'", c.profile)
 	}
 	if resp.StatusCode != 200 {
 		return nil, fmt.Errorf("swgohgg: unexpected status code %d", resp.StatusCode)
