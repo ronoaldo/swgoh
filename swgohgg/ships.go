@@ -44,7 +44,6 @@ func (r Ships) ContainsAll(ships ...string) bool {
 	return true
 }
 
-
 type Ship struct {
 	Name  string
 	Stars int
@@ -77,5 +76,3 @@ func shipStars(s *goquery.Selection) int {
 	})
 	return level
 }
-
-

@@ -46,7 +46,6 @@ func (bs sortByShipStars) Less(i, j int) bool {
 	return bs.ships[i].Stars > bs.ships[j].Stars
 }
 
-
 type sortByShape struct {
 	mods []*Mod
 	asc  bool
