@@ -134,7 +134,7 @@ type CharacterStats struct {
 	Health         int64
 	Protection     int64
 	Speed          int64
-	CriticalDamage int64
+	CriticalDamage float64
 	Potency        float64
 	Tenacity       float64
 	HealthSteal    float64
@@ -194,7 +194,7 @@ func (c *Client) CharacterStats(char string) (*CharacterStats, error) {
 		case "Speed":
 			charStats.Speed = atoi(value)
 		case "Critical Damage":
-			charStats.CriticalDamage = atoi(value)
+			charStats.CriticalDamage = atof(value)
 		case "Potency":
 			charStats.Potency = atof(value)
 		case "Tenacity":
