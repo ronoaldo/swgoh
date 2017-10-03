@@ -1,6 +1,6 @@
 # swgoh.gg crawler and CLI tool
 
-For Star Wars Galaxy of Heroes players and tech-savvy, tools provided in this repository allows them to crawl and use their data synced to https://swgoh.gg website.
+For Star Wars Galaxy of Heroes players and tech-savvy, tools provided in this repository allows them to crawl and use their data synced to the https://swgoh.gg website.
 
 ## API for Go lang
 
@@ -16,7 +16,7 @@ You can use this command line interface to parse your characters, ships, and mod
 
 ### Install or Download
 
-If you just want to use it, go to the [Relase Page](https://github.com/ronoaldo/swgoh/releases) and download the one for your operating system.
+If you just want to use it, go to the [Release Page](https://github.com/ronoaldo/swgoh/releases) and download the one for your operating system.
 
 You can also install this commands if you have the Go language tools:
 
@@ -38,13 +38,13 @@ The result is a CSV list of your ships, their level, and stars.
 
 To list your characters, you can use the following command:
 
-    swgoh -profile ronoaldo -chars
+    swgoh -profile ronoaldo -collection
 
 The result is a CSV list of your characters, their level, stars, and gear level.
 
 ### Mods and Mod Set suggestions
 
-The tool has some experimental mod suggestion and is also capable to export your mods into CSV format for your spreadsheet lovers.
+The tool has some experimental mod suggestions and is also capable of exporting your mods into CSV format for you spreadsheet lovers.
 
     swgoh -profile ronoaldo -mods
 
