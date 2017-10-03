@@ -41,7 +41,7 @@ func CharName(src string) string {
 	case "cassian", "cassian andor":
 		return "Cassian Andor"
 	case "cody":
-		return "CT-2224 \"Cody\""
+		return "CC-2224 \"Cody\""
 	case "chirpa", "chief chirpa":
 		return "Chief Chirpa"
 	case "nebit", "chief nebit":
