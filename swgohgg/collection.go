@@ -112,40 +112,40 @@ func gearLevel(s *goquery.Selection) int {
 
 type CharacterStats struct {
 	Name      string
-	Level     int64
-	GearLevel int64
-	Stars     int64
+	Level     int
+	GearLevel int
+	Stars     int
 
 	// Current character gallactic power
-	GalacticPower int64
+	GalacticPower int
 
 	// List of skils of this character
 	Skills []Skill
 
 	// Basic Stats
-	STR                int64
-	AGI                int64
-	INT                int64
+	STR                int
+	AGI                int
+	INT                int
 	StrenghGrowth      float64
 	AgilityGrowth      float64
 	IntelligenceGrowth float64
 
 	// General
-	Health         int64
-	Protection     int64
-	Speed          int64
+	Health         int
+	Protection     int
+	Speed          int
 	CriticalDamage float64
 	Potency        float64
 	Tenacity       float64
 	HealthSteal    float64
 
-	PhysicalDamage int64
-	SpecialDamate  int64
+	PhysicalDamage int
+	SpecialDamate  int
 }
 
 type Skill struct {
 	Name  string
-	Level int64
+	Level int
 }
 
 func (c *Client) CharacterStats(char string) (*CharacterStats, error) {
@@ -158,7 +158,7 @@ func (c *Client) CharacterStats(char string) (*CharacterStats, error) {
 	charStats := &CharacterStats{}
 	charStats.Name = doc.Find(".pc-char-overview-name").Text()
 	charStats.Level = atoi(doc.Find(".char-portrait-full-level").Text())
-	charStats.Stars = int64(stars(doc.Find(".player-char-portrait")))
+	charStats.Stars = int(stars(doc.Find(".player-char-portrait")))
 	gearInfo := strings.Split(doc.Find(".pc-gear").First().Find(".pc-heading").First().AttrOr("title", "Gear -1 "), " ")
 	if len(gearInfo) > 1 {
 		charStats.GearLevel = atoi(gearInfo[1])
@@ -210,7 +210,7 @@ func (c *Client) CharacterStats(char string) (*CharacterStats, error) {
 	return charStats, nil
 }
 
-func skillLevel(s *goquery.Selection) int64 {
+func skillLevel(s *goquery.Selection) int {
 	title := s.Find(".pc-skill-levels").First().AttrOr("data-title", "Level -1")
 	// Title is in the form 'Level X of Y'
 	fields := strings.Fields(title)
@@ -227,10 +227,10 @@ func atof(src string) float64 {
 }
 
 // atoi best-effort convertion to int, return 0 if unparseable
-func atoi(src string) int64 {
+func atoi(src string) int {
 	src = strings.Replace(src, ",", "", -1)
 	src = strings.Replace(src, ".", "", -1)
 	src = strings.Replace(src, "%", "", -1)
-	v, _ := strconv.ParseInt(src, 10, 64)
-	return v
+	v, _ := strconv.ParseInt(src, 10, 32)
+	return int(v)
 }
