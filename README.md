@@ -56,6 +56,16 @@ Finally, you can ask the tool to optimize a set by trial and error. This is curr
 
     swgoh -profile ronoaldo -mods -optimize-set 'Critical Chance'
 
+### Character and Arena stats
+
+It is possible to display single character or your arena team statistics using the -stats or -arena switches. To display statistics from a single character, type:
+
+    swgoh -profile ronoaldo -stats -char Tarkin
+
+And to display the current stats of your arena team, use the -arena option:
+
+    swgoh -profile ronoaldo -arena
+
 ### Caching
 
 Caching is performed in your personal folder, `$HOME` on *nix machines, using a file named `swgoh.*yourprofile*.*mods or roster*.json`.

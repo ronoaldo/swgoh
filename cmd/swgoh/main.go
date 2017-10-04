@@ -21,6 +21,7 @@ var (
 	showShips      bool
 	showMods       bool
 	showStats      bool
+	showArena      bool
 	useCache       bool
 )
 
@@ -32,6 +33,7 @@ func init() {
 	flag.BoolVar(&showShips, "ships", false, "Show user ships collection")
 	flag.BoolVar(&showMods, "mods", false, "Show user mods collection")
 	flag.BoolVar(&showStats, "stats", false, "Show a single character stats (requires -char)")
+	flag.BoolVar(&showArena, "arena", false, "Show stats for your current arena team")
 
 	// Cache flags
 	flag.BoolVar(&useCache, "cache", true, "Use cache to save mod query")
@@ -187,6 +189,20 @@ func main() {
 			for _, mod := range mods {
 				fmt.Println(mod)
 			}
+		}
+	}
+
+	if showArena {
+		team, err := swgg.Arena()
+		if err != nil {
+			log.Fatal(err)
+		}
+		for _, char := range team {
+			b, err := yaml.Marshal(char)
+			if err != nil {
+				log.Fatal(err)
+			}
+			fmt.Println(string(b))
 		}
 	}
 }
