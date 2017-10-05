@@ -193,7 +193,7 @@ func main() {
 	}
 
 	if showArena {
-		team, err := swgg.Arena()
+		team, _, err := swgg.Arena()
 		if err != nil {
 			log.Fatal(err)
 		}
