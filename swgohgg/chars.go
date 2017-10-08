@@ -105,7 +105,7 @@ func CharName(src string) string {
 	case "gar", "saxon", "gar saxon":
 		return "Gar Saxon"
 	case "zeb", "garrazeb", "garazeb", "garrazeb orrelios", "garrazeb zeb orrelios":
-		return "Garrazeb \"Zeb\" Orrellios"
+		return "Garazeb \"Zeb\" Orrelios"
 	case "gg", "grevous", "grievous", "grivous", "general grievous":
 		return "General Grievous"
 	case "kenobi", "gk", "general kenobi":

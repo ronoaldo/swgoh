@@ -152,7 +152,7 @@ func (c *Client) CharacterStats(char string) (*CharacterStats, error) {
 	charSlug := CharSlug(CharName(char))
 	doc, err := c.Get(fmt.Sprintf("https://swgoh.gg/u/%s/collection/%s/", c.profile, charSlug))
 	if err != nil {
-		return nil, fmt.Errorf("swgohgg: profile %s may not have %s activated.", c.profile, CharName(char))
+		return nil, fmt.Errorf("swgohgg: profile %s may not have %s activated. (err=%v)", c.profile, CharName(char), err.Error())
 	}
 
 	charStats := &CharacterStats{}
