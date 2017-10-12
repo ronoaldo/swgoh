@@ -4,6 +4,9 @@ import (
 	"strings"
 )
 
+// CharName does a best effort to normalize the character name.
+// Aliases like 'gat' for Grand Admiral Thrawn works.
+// If no correction can be made, the original value is returned.
 func CharName(src string) string {
 	switch strings.ToLower(src) {
 	case "ayla", "aayla", "aayla secura":
@@ -158,7 +161,7 @@ func CharName(src string) string {
 		return "Jedi Knight Anakin"
 	case "jkg", "jedi knight guardian":
 		return "Jedi Knight Guardian"
-	case "jyn", "zJyn", "zyn", "jyn erso":
+	case "jyn", "zjyn", "zyn", "jyn erso":
 		return "Jyn Erso"
 	case "k2", "k2so", "k-2s0":
 		return "K-2SO"
@@ -262,4 +265,74 @@ func CharName(src string) string {
 		return "Zam Wesell"
 	}
 	return src
+}
+
+// ShipForCrew returns the ship name for the provided crew member.
+// Crew member name is first parsed/adjusted by CharName function,
+// so aliases supported there work here too.
+func ShipForCrew(pilot string) string {
+	pilot = CharName(pilot)
+	switch strings.ToLower(pilot) {
+	case "ahsoka tano":
+		return "Ahsoka Tano's Jedi Starfighter"
+	case "biggs darklighter":
+		return "Biggs Darklighter's X-wing"
+	case "bistan", "scarif rebel pathfinder":
+		return "Bistan's U-wing"
+	case "cassian andor", "jyn erso", "k-2so":
+		return "Cassian's U-wing"
+	case "grand admiral thrawn":
+		return "Chimaera"
+	case "clone sergeant - phase i":
+		return "Clone Sergeant's ARC-170"
+	case "mace windu":
+		return "Endurance"
+	case "grand moff tarkin":
+		return "Executrix"
+	case "first order tie pilot":
+		return "First Order TIE Fighter"
+	case "gar saxon", "imperial super comando":
+		return "Gauntlet Starfighter"
+	case "geonosian soldier":
+		return "Geonosian Soldier's Starfighter"
+	case "geonosian spy":
+		return "Geonosian Spy's Starfighter"
+	case "hera syndulla", "kanan jarrus", "garazeb \"zeb\" orrelios":
+		return "Ghost"
+	case "admiral ackbar":
+		return "Home One"
+	case "tie fighter pilot":
+		return "Imperial TIE Fighter"
+	case "jedi consular":
+		return "Jedi Consular's Starfighter"
+	case "kylo ren":
+		return "Kylo Ren's Command Shuttle"
+	case "rey", "finn":
+		return "Millennium Falcon (Ep VII)"
+	case "sabine wren", "ezra bridger", "chopper":
+		return "Phantom II"
+	case "plo koon":
+		return "Plo Koon's Jedi Starfighter"
+	case "poe dameron":
+		return "Poe Dameron's X-wing"
+	case "resistance pilot":
+		return "Resistance X-wing"
+	case "ct-7567 \"rex\"":
+		return "Rex's ARC-170"
+	case "darth maul":
+		return "Scimitar"
+	case "boba fett":
+		return "Slave I"
+	case "sun fac":
+		return "Sun Fac's Geonosian Starfighter"
+	case "darth vader":
+		return "TIE Advanced x1"
+	case "death trooper", "shoretrooper":
+		return "TIE Reaper"
+	case "ct-5555 \"fives\"":
+		return "Umbaran Starfighter"
+	case "wedge antiles":
+		return "Wedge Antilles's X-wing"
+	}
+	return ""
 }
