@@ -211,7 +211,7 @@ func CharName(src string) string {
 	case "rt":
 		return "Resistance Trooper"
 	case "rolo", "rebel leia":
-		return "Rebel Office Leia Organa"
+		return "Rebel Officer Leia Organa"
 	case "rey":
 		return "Rey"
 	case "rg", "royal":
