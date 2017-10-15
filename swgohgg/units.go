@@ -253,9 +253,9 @@ func CharName(src string) string {
 		return "Ugnaught"
 	case "uror", "urorr":
 		return "URoRRuR'R'R"
-	case "vhan", "vet han", "veteran han", "veteran han solo", "smuggler han":
-		return "Veteran Smuggler Chewbacca"
 	case "vchewie", "vchewbacca", "vet chewie", "vet chewbacca", "veteran chewie", "veteran chewbacca", "smuggler chewie", "smuggler chewbacca":
+		return "Veteran Smuggler Chewbacca"
+	case "vhan", "vet han", "veteran han", "veteran han solo", "smuggler han":
 		return "Veteran Smuggler Han Solo"
 	case "wedge", "wedge antilles":
 		return "Wedge Antilles"
