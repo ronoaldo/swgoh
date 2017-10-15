@@ -281,25 +281,25 @@ func ShipForCrew(pilot string) string {
 		return "Bistan's U-wing"
 	case "cassian andor", "jyn erso", "k-2so":
 		return "Cassian's U-wing"
-	case "grand admiral thrawn":
+	case "grand admiral thrawn", "chimaera":
 		return "Chimaera"
 	case "clone sergeant - phase i":
 		return "Clone Sergeant's ARC-170"
-	case "mace windu":
+	case "mace windu", "endurance":
 		return "Endurance"
-	case "grand moff tarkin":
+	case "grand moff tarkin", "executrix":
 		return "Executrix"
 	case "first order tie pilot":
 		return "First Order TIE Fighter"
-	case "gar saxon", "imperial super comando":
+	case "gar saxon", "imperial super comando", "gauntlet":
 		return "Gauntlet Starfighter"
 	case "geonosian soldier":
 		return "Geonosian Soldier's Starfighter"
 	case "geonosian spy":
 		return "Geonosian Spy's Starfighter"
-	case "hera syndulla", "kanan jarrus", "garazeb \"zeb\" orrelios":
+	case "hera syndulla", "kanan jarrus", "garazeb \"zeb\" orrelios", "ghost":
 		return "Ghost"
-	case "admiral ackbar":
+	case "admiral ackbar", "home", "home one":
 		return "Home One"
 	case "tie fighter pilot":
 		return "Imperial TIE Fighter"
@@ -307,9 +307,9 @@ func ShipForCrew(pilot string) string {
 		return "Jedi Consular's Starfighter"
 	case "kylo ren":
 		return "Kylo Ren's Command Shuttle"
-	case "rey", "finn":
+	case "rey", "finn", "millennium", "falcon", "milenium", "milennium":
 		return "Millennium Falcon (Ep VII)"
-	case "sabine wren", "ezra bridger", "chopper":
+	case "sabine wren", "ezra bridger", "chopper", "phantom":
 		return "Phantom II"
 	case "plo koon":
 		return "Plo Koon's Jedi Starfighter"
@@ -319,17 +319,17 @@ func ShipForCrew(pilot string) string {
 		return "Resistance X-wing"
 	case "ct-7567 \"rex\"":
 		return "Rex's ARC-170"
-	case "darth maul":
+	case "darth maul", "scimitar":
 		return "Scimitar"
-	case "boba fett":
+	case "boba fett", "slave", "slave i", "slavei", "slave one":
 		return "Slave I"
 	case "sun fac":
 		return "Sun Fac's Geonosian Starfighter"
-	case "darth vader":
+	case "darth vader", "tie x1", "tie advanced":
 		return "TIE Advanced x1"
-	case "death trooper", "shoretrooper":
+	case "death trooper", "shoretrooper", "reaper", "tie reaper":
 		return "TIE Reaper"
-	case "ct-5555 \"fives\"":
+	case "ct-5555 \"fives\"", "umbaram":
 		return "Umbaran Starfighter"
 	case "wedge antiles":
 		return "Wedge Antilles's X-wing"
