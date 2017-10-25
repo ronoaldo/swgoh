@@ -182,10 +182,16 @@ func CharSlug(charName string) string {
 		return "magmatrooper"
 	case `mob enforcer`:
 		return "mob-enforcer"
+	case `mother talzin`:
+		return "mother-talzin"
 	case `nightsister acolyte`:
 		return "nightsister-acolyte"
 	case `nightsister initiate`:
 		return "nightsister-initiate"
+	case `nightsister spirit`:
+		return "nightsister-spirit"
+	case `nightsister zombie`:
+		return "nightsister-zombie"
 	case `nute gunray`:
 		return "nute-gunray"
 	case `obi-wan kenobi (old ben)`:
@@ -214,8 +220,8 @@ func CharSlug(charName string) string {
 		return "resistance-pilot"
 	case `resistance trooper`:
 		return "resistance-trooper"
-	case `rey`:
-		return "rey"
+	case `rey (scavenger)`:
+		return "rey-scavenger"
 	case `royal guard`:
 		return "royal-guard"
 	case `sabine wren`:
