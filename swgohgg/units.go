@@ -171,6 +171,8 @@ func CharName(src string) string {
 		return "Kit Fisto"
 	case "kylo", "ren", "zylo", "kylo ren":
 		return "Kylo Ren"
+	case "kru":
+		return "Kylo Ren (Unmasked)"
 	case "lando", "calrissian", "lando calrissian":
 		return "Lando Calrissian"
 	case "lobot":
@@ -307,7 +309,9 @@ func ShipForCrew(pilot string) string {
 		return "Jedi Consular's Starfighter"
 	case "kylo ren":
 		return "Kylo Ren's Command Shuttle"
-	case "rey", "finn", "millennium", "falcon", "milenium", "milennium":
+	case "kylo ren (unmasked)":
+		return "TIE Silencer"
+	case "rey (scavenger)", "finn", "millennium", "falcon", "milenium", "milennium":
 		return "Millennium Falcon (Ep VII)"
 	case "sabine wren", "ezra bridger", "chopper", "phantom":
 		return "Phantom II"
@@ -334,5 +338,7 @@ func ShipForCrew(pilot string) string {
 	case "wedge antiles":
 		return "Wedge Antilles's X-wing"
 	}
-	return ""
+	// To allow a fallback mode when you don't have a ship shortcut,
+	// return the same words as received
+	return pilot
 }

@@ -52,6 +52,8 @@ func CharSlug(charName string) string {
 		return "clone-sergeant-phase-i"
 	case `clone wars chewbacca`:
 		return "clone-wars-chewbacca"
+	case `colonel starck`:
+		return "colonel-starck"
 	case `commander luke skywalker`:
 		return "commander-luke-skywalker"
 	case `coruscant underworld police`:
@@ -94,6 +96,8 @@ func CharSlug(charName string) string {
 		return "finn"
 	case `first order officer`:
 		return "first-order-officer"
+	case `first order sf tie pilot`:
+		return "first-order-sf-tie-pilot"
 	case `first order stormtrooper`:
 		return "first-order-stormtrooper"
 	case `first order tie pilot`:
@@ -142,6 +146,8 @@ func CharSlug(charName string) string {
 		return "ig-88"
 	case `ima-gun di`:
 		return "ima-gun-di"
+	case `imperial probe droid`:
+		return "imperial-probe-droid"
 	case `imperial super commando`:
 		return "imperial-super-commando"
 	case `jawa`:
@@ -166,6 +172,8 @@ func CharSlug(charName string) string {
 		return "kit-fisto"
 	case `kylo ren`:
 		return "kylo-ren"
+	case `kylo ren (unmasked)`:
+		return "kylo-ren-unmasked"
 	case `lando calrissian`:
 		return "lando-calrissian"
 	case `lobot`:
@@ -262,6 +270,8 @@ func CharSlug(charName string) string {
 		return "veteran-smuggler-chewbacca"
 	case `veteran smuggler han solo`:
 		return "veteran-smuggler-han-solo"
+	case `wampa`:
+		return "wampa"
 	case `wedge antilles`:
 		return "wedge-antilles"
 	case `wicket`:
