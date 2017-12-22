@@ -228,6 +228,10 @@ func CharSlug(charName string) string {
 		return "resistance-pilot"
 	case `resistance trooper`:
 		return "resistance-trooper"
+	case `rey`:
+		return "rey"
+	case `rey (jedi training)`:
+		return "rey-jedi-training"
 	case `rey (scavenger)`:
 		return "rey-scavenger"
 	case `royal guard`:
