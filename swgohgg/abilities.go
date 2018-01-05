@@ -15,7 +15,7 @@ type Ability struct {
 }
 
 func (c *Client) Zetas() (zetas []Ability, err error) {
-	for page := 1; page <= 4; page++ {
+	for page := 1; page <= 5; page++ {
 		var (
 			doc *goquery.Document
 			url = fmt.Sprintf("https://swgoh.gg/characters/zeta-abilities/?page=%d", page)
