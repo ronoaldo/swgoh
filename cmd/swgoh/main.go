@@ -7,7 +7,7 @@ import (
 
 	"gopkg.in/yaml.v2"
 
-	"ronoaldo.gopkg.net/swgoh/swgohgg"
+	"github.com/ronoaldo/swgoh/swgohgg"
 )
 
 var (

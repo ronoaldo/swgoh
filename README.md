@@ -6,7 +6,7 @@ For Star Wars Galaxy of Heroes players and tech-savvy, tools provided in this re
 
 A package that crawls and fetches data is available at
 
-    ronoaldo.gopkg.net/swgoh/swgohgg
+    github.com/ronoaldo/swgoh/swgohgg
 
 If you aim to build a tool that uses the website data, please first ask site authors for their approval. Also, keep in mind that they may pose rate-limit for your requests in order to prevent website overload.
 
@@ -20,7 +20,7 @@ If you just want to use it, go to the [Release Page](https://github.com/ronoaldo
 
 You can also install this commands if you have the Go language tools:
 
-    go get ronoaldo.gopkg.net/swgoh/cmd/swgoh
+    go get github.com/ronoaldo/swgoh/cmd/swgoh
 
 To see the full list of available options, run:
 
