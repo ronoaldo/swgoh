@@ -139,8 +139,10 @@ type CharacterStats struct {
 	Tenacity       float64
 	HealthSteal    float64
 
-	PhysicalDamage int
-	SpecialDamate  int
+	PhysicalDamage     int
+	PhysicalCritChance float64
+	SpecialDamage      int
+	SpecialCritChance  float64
 }
 
 type Skill struct {
@@ -204,7 +206,11 @@ func (c *Client) CharacterStats(char string) (*CharacterStats, error) {
 		case "Physical Damage":
 			charStats.PhysicalDamage = atoi(value)
 		case "Special Damage":
-			charStats.SpecialDamate = atoi(value)
+			charStats.SpecialDamage = atoi(value)
+		case "Physical Critical Chance":
+			charStats.PhysicalCritChance = atof(value)
+		case "Special Critical Chance":
+			charStats.SpecialCritChance = atof(value)
 		}
 	})
 	return charStats, nil
