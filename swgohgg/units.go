@@ -59,6 +59,8 @@ func CharName(src string) string {
 		return "Clone Wars Chewbacca"
 	case "cls", "commander luke", "commander luke skywalker":
 		return "Commander Luke Skywalker"
+	case "colonel", "starck", "stark":
+		return "Colonel Starck"
 	case "cup", "coruscant", "coruscant police":
 		return "Coruscant Underworld Police"
 	case "dooku", "dokan", "dookan", "count dooku":
@@ -97,6 +99,8 @@ func CharName(src string) string {
 		return "Ezra Bridger"
 	case "finn", "zinn":
 		return "Finn"
+	case "foe", "executioner", "panda", "death panda":
+		return "First Order Executioner"
 	case "foo", "fo officer", "first order officer":
 		return "First Order Officer"
 	case "fost", "fo stormtrooper", "first order stormtrooper":
@@ -147,6 +151,8 @@ func CharName(src string) string {
 		return "IG-88"
 	case "ima", "igd", "ima gun", "gun di", "ima gun di", "ima-gun di", "ima-gun-di":
 		return "Ima-Gun Di"
+	case "ipd", "probe", "probe droid", "imperial droid":
+		return "Imperial Probe Droid"
 	case "isc", "imperial commando", "super commando", "imperial super commando":
 		return "Imperial Super Commando"
 	case "jawa":
