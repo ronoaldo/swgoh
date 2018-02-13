@@ -14,7 +14,6 @@ import (
 // Client implements methods to interact with the https://swgoh.gg/ website.
 type Client struct {
 	hc         *http.Client
-	jar        *cookiejar.Jar
 	profile    string
 	authorized bool
 }
@@ -56,8 +55,8 @@ func (c *Client) Get(url string) (*goquery.Document, error) {
 // UseHTTPClient allows one to overwrite the default HTTP Client.
 // The Client.Jar is replaced before next use.
 func (c *Client) UseHTTPClient(hc *http.Client) *Client {
+	hc.Jar = c.hc.Jar
 	c.hc = hc
-	c.hc.Jar = c.jar
 	return c
 }
 
