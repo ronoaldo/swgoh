@@ -8,6 +8,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
+// Ships returns a collection of ships the player has and are active.
 func (c *Client) Ships() (ships Ships, err error) {
 	url := fmt.Sprintf("https://swgoh.gg/u/%s/ships/", c.profile)
 	doc, err := c.Get(url)
@@ -24,8 +25,10 @@ func (c *Client) Ships() (ships Ships, err error) {
 	return ships, nil
 }
 
+// Ships is a slice of ships with methods for manipulation.
 type Ships []*Ship
 
+// Contains checks if the ship collection contains the provided ship.
 func (r Ships) Contains(ship string) bool {
 	for i := range r {
 		if r[i].Name == ship {
@@ -35,6 +38,7 @@ func (r Ships) Contains(ship string) bool {
 	return false
 }
 
+// ContainsAll returns true if the ship collection contains all the provided ships.
 func (r Ships) ContainsAll(ships ...string) bool {
 	for _, ship := range ships {
 		if !r.Contains(ship) {
@@ -44,6 +48,7 @@ func (r Ships) ContainsAll(ships ...string) bool {
 	return true
 }
 
+// Ship is a ship unit with basic stats.
 type Ship struct {
 	Name  string
 	Stars int

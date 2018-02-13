@@ -9,6 +9,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
+// Collection parses a player home page and returns the entire collection list.
 func (c *Client) Collection() (collection Collection, err error) {
 	url := fmt.Sprintf("https://swgoh.gg/u/%s/collection/", c.profile)
 	doc, err := c.Get(url)
@@ -25,8 +26,11 @@ func (c *Client) Collection() (collection Collection, err error) {
 	return collection, nil
 }
 
+// Collection is a list of characters. Usually loaded up by the call
+// to client.Collection().
 type Collection []*Char
 
+// Contains lookup a character by name and checks if it is present in the collection.
 func (r Collection) Contains(char string) bool {
 	for i := range r {
 		if strings.ToLower(r[i].Name) == strings.ToLower(char) {
@@ -36,6 +40,7 @@ func (r Collection) Contains(char string) bool {
 	return false
 }
 
+// ContainsAll checks if the collection has all the provided items.
 func (r Collection) ContainsAll(chars ...string) bool {
 	for _, char := range chars {
 		if !r.Contains(char) {
@@ -45,6 +50,7 @@ func (r Collection) ContainsAll(chars ...string) bool {
 	return true
 }
 
+// Char is a single character unit holding the basic stats.
 type Char struct {
 	Name  string
 	Stars int
@@ -110,6 +116,7 @@ func gearLevel(s *goquery.Selection) int {
 	}
 }
 
+// CharacterStats contains all detailed character stats, as displayed in the game.
 type CharacterStats struct {
 	Name      string
 	Level     int
@@ -120,7 +127,7 @@ type CharacterStats struct {
 	GalacticPower int
 
 	// List of skils of this character
-	Skills []Skill
+	Skills []CharacterSkill
 
 	// Basic Stats
 	STR                int
@@ -145,11 +152,13 @@ type CharacterStats struct {
 	SpecialCritChance  float64
 }
 
-type Skill struct {
+// CharacterSkill holds basic info about a character skill.
+type CharacterSkill struct {
 	Name  string
 	Level int
 }
 
+// CharacterStats fetches the characer detail page and extracts all stats.
 func (c *Client) CharacterStats(char string) (*CharacterStats, error) {
 	charSlug := CharSlug(CharName(char))
 	doc, err := c.Get(fmt.Sprintf("https://swgoh.gg/u/%s/collection/%s/", c.profile, charSlug))
@@ -168,7 +177,7 @@ func (c *Client) CharacterStats(char string) (*CharacterStats, error) {
 	charStats.GalacticPower = atoi(doc.Find(".unit-gp-stat-amount-current").First().Text())
 	// Skills
 	doc.Find(".pc-skills-list").First().Find(".pc-skill").Each(func(i int, s *goquery.Selection) {
-		skill := Skill{}
+		skill := CharacterSkill{}
 		skill.Name = s.Find(".pc-skill-name").First().Text()
 		skill.Level = skillLevel(s)
 		charStats.Skills = append(charStats.Skills, skill)

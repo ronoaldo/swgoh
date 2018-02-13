@@ -1,45 +1,49 @@
 package swgohgg
 
-type sortByStars struct {
+// SortByStars is a sorting criteria to sort a character collection by star level.
+type SortByStars struct {
 	chars []*Char
 	asc   bool
 }
 
-func ByStars(chars []*Char, ascending bool) sortByStars {
-	return sortByStars{
+// ByStars returns a sorting criteria to sort characters by stars.
+func ByStars(chars []*Char, ascending bool) SortByStars {
+	return SortByStars{
 		chars: chars,
 		asc:   ascending,
 	}
 }
 
-func (bs sortByStars) Len() int { return len(bs.chars) }
+func (bs SortByStars) Len() int { return len(bs.chars) }
 
-func (bs sortByStars) Swap(i, j int) { bs.chars[i], bs.chars[j] = bs.chars[j], bs.chars[i] }
+func (bs SortByStars) Swap(i, j int) { bs.chars[i], bs.chars[j] = bs.chars[j], bs.chars[i] }
 
-func (bs sortByStars) Less(i, j int) bool {
+func (bs SortByStars) Less(i, j int) bool {
 	if bs.asc {
 		return bs.chars[i].Stars < bs.chars[j].Stars
 	}
 	return bs.chars[i].Stars > bs.chars[j].Stars
 }
 
-type sortByShipStars struct {
+// SortByShipStars is a sorting criteria to sort ship collection by stars.
+type SortByShipStars struct {
 	ships []*Ship
 	asc   bool
 }
 
-func ByShipStars(ships []*Ship, ascending bool) sortByShipStars {
-	return sortByShipStars{
+// ByShipStars returns a sorting criteria to sort ships by stars.
+func ByShipStars(ships []*Ship, ascending bool) SortByShipStars {
+	return SortByShipStars{
 		ships: ships,
 		asc:   ascending,
 	}
 }
 
-func (bs sortByShipStars) Len() int { return len(bs.ships) }
+func (bs SortByShipStars) Len() int { return len(bs.ships) }
 
-func (bs sortByShipStars) Swap(i, j int) { bs.ships[i], bs.ships[j] = bs.ships[j], bs.ships[i] }
+func (bs SortByShipStars) Swap(i, j int) { bs.ships[i], bs.ships[j] = bs.ships[j], bs.ships[i] }
 
-func (bs sortByShipStars) Less(i, j int) bool {
+func (bs SortByShipStars) Less(i, j int) bool {
 	if bs.asc {
 		return bs.ships[i].Stars < bs.ships[j].Stars
 	}

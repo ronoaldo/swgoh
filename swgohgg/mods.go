@@ -10,6 +10,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
+// Mod represents a player mod with all mod information.
 type Mod struct {
 	ID       string
 	Level    int
@@ -27,6 +28,7 @@ func (m Mod) String() string {
 	return m.Format(false)
 }
 
+// Format returns a string representation of the mod, either using Unicode emoji or not.
 func (m *Mod) Format(useEmoji bool) string {
 	if m == nil {
 		return "nil mod"
@@ -42,10 +44,12 @@ func (m *Mod) Format(useEmoji bool) string {
 	return str
 }
 
+// BonusShortName returns the bonus set abreviated name.
 func (m *Mod) BonusShortName() string {
 	return statAbbrev(m.BonusSet)
 }
 
+// ShapeEmoji returns an unicode emoji that better represents the mod shape.
 func (m *Mod) ShapeEmoji() string {
 	switch m.Shape {
 	case "Transmitter":
@@ -65,6 +69,7 @@ func (m *Mod) ShapeEmoji() string {
 	}
 }
 
+// ShapeIcon returns an unicode emoji that is coloured and represents the mod shape.
 func (m *Mod) ShapeIcon() string {
 	switch m.Shape {
 	case "Transmitter":
@@ -84,6 +89,7 @@ func (m *Mod) ShapeIcon() string {
 	}
 }
 
+// ShapeName returns the mod shape name.
 func (m *Mod) ShapeName() string {
 	switch m.Shape {
 	case "Transmitter":
@@ -103,10 +109,12 @@ func (m *Mod) ShapeName() string {
 	}
 }
 
+// HasStat checks if the mod has a primary or secondary stat.
 func (m *Mod) HasStat(stat string) bool {
 	return !m.GetStat(stat).IsZero()
 }
 
+// GetStat returns a stat from the mod. The return is never nil, but a Zero ModStat.
 func (m *Mod) GetStat(stat string) ModStat {
 	if m.PrimStat.Stat == stat || m.PrimStat.StatShortName() == stat {
 		return m.PrimStat
@@ -119,6 +127,8 @@ func (m *Mod) GetStat(stat string) ModStat {
 	return ModStat{}
 }
 
+// ModStat is a single mod stat value. If a percentage value additive,
+// the IsPercentage attribute will be true.
 type ModStat struct {
 	Stat      string
 	Value     float64
@@ -132,10 +142,12 @@ func (ms ModStat) String() string {
 	return fmt.Sprintf("%.02f %s", ms.Value, ms.StatShortName())
 }
 
+// StatShortName returns an abbreviated stat name.
 func (ms ModStat) StatShortName() string {
 	return statAbbrev(ms.Stat)
 }
 
+// IsBetterThan attempts to compare two stats with each other.
 func (ms ModStat) IsBetterThan(other ModStat) bool {
 	switch {
 	case ms.IsZero():
@@ -149,6 +161,7 @@ func (ms ModStat) IsBetterThan(other ModStat) bool {
 	}
 }
 
+// IsZero checks if the stat object has a value or name, indicating it is not zero value.
 func (ms ModStat) IsZero() bool {
 	return ms.Stat == "" && ms.Value == 0
 }
@@ -168,10 +181,13 @@ func statAbbrev(stat string) string {
 	}
 }
 
+// ModFilter allows to filter mod queries.
+// Currently available filter is by character name.
 type ModFilter struct {
 	Char string
 }
 
+// Match checks if the provided mod matches the filter.
 func (f *ModFilter) Match(mod *Mod) bool {
 	if f.Char == "" {
 		return true
@@ -179,8 +195,10 @@ func (f *ModFilter) Match(mod *Mod) bool {
 	return CharSlug(CharName(f.Char)) == CharSlug(mod.UsingIn)
 }
 
+// ModCollection is a slice of mods with extra methods for manipulation.
 type ModCollection []*Mod
 
+// ByShape filter the mod collection by a given shape.
 func (m ModCollection) ByShape(shape string) (filtered ModCollection) {
 	for _, mod := range m {
 		if strings.ToLower(mod.Shape) == strings.ToLower(shape) {
@@ -191,6 +209,7 @@ func (m ModCollection) ByShape(shape string) (filtered ModCollection) {
 	return
 }
 
+// WithStat filters a mod collection by a given stat.
 func (m ModCollection) WithStat(stat string) (filtered ModCollection) {
 	for _, mod := range m {
 		if mod.HasStat(stat) || mod.BonusSet == stat {
@@ -201,6 +220,7 @@ func (m ModCollection) WithStat(stat string) (filtered ModCollection) {
 	return
 }
 
+// MinLevel filters the mod collection to one that has only the given minimum level.
 func (m ModCollection) MinLevel(level int) (filtered ModCollection) {
 	for _, mod := range m {
 		if mod.Level >= level {
@@ -211,6 +231,7 @@ func (m ModCollection) MinLevel(level int) (filtered ModCollection) {
 	return
 }
 
+// MinRarity filters the mod collection to one that has the minium rarity.
 func (m ModCollection) MinRarity(rarity int) (filtered ModCollection) {
 	for _, mod := range m {
 		if mod.Rarity >= rarity {
@@ -221,6 +242,7 @@ func (m ModCollection) MinRarity(rarity int) (filtered ModCollection) {
 	return
 }
 
+// Filter applies the provided mod filter and returns a filtered collection that matches it.
 func (m ModCollection) Filter(filter ModFilter) (filtered ModCollection) {
 	for _, mod := range m {
 		if filter.Match(mod) {
@@ -301,8 +323,10 @@ func (m ModCollection) Optimize(stat string, percentIsBetter bool) ModSet {
 	return optimized
 }
 
+// ModSet is a mod with a set of mods with unique shapes.
 type ModSet map[string]Mod
 
+// Add includes the provided mod in the set.
 func (set ModSet) Add(mod *Mod) {
 	if mod == nil {
 		return
@@ -310,12 +334,14 @@ func (set ModSet) Add(mod *Mod) {
 	set[mod.Shape] = *mod
 }
 
+// AddAll include all mods in the set.
 func (set ModSet) AddAll(mods []*Mod) {
 	for i := range mods {
 		set.Add(mods[i])
 	}
 }
 
+// StatSummary returns a summary of all mods in the set.
 func (set ModSet) StatSummary() (result []string) {
 	for _, stat := range StatNames {
 		result = append(result, fmt.Sprintf("%.0f + %.02f%% %s", set.Sum(stat, false), set.Sum(stat, true), stat))
@@ -323,6 +349,8 @@ func (set ModSet) StatSummary() (result []string) {
 	return
 }
 
+// Sum returns a sum of all stats in the given set.
+// Only mods with the same stat name and ispercent flag will be included in the sum.
 func (set ModSet) Sum(stat string, isPercent bool) (res float64) {
 	// First, acumulate the stat value
 	for _, mod := range set {
@@ -340,6 +368,8 @@ func (set ModSet) Sum(stat string, isPercent bool) (res float64) {
 	return
 }
 
+// BonusForSet calculates the bonus set for the given stat.
+// Takes into account mod level.
 func (set ModSet) BonusForSet(stat string) float64 {
 	mods := make([]*Mod, 0, len(set))
 	for i := range set {
@@ -384,6 +414,7 @@ func (set ModSet) BonusForSet(stat string) float64 {
 	return bonus
 }
 
+// Mods reutrns a mod collection of mods with the given filter.
 func (c *Client) Mods(filter ModFilter) (mods ModCollection, err error) {
 	page := 1
 	for {
@@ -419,7 +450,7 @@ func parseMod(s *goquery.Selection) *Mod {
 	mod.ID = s.AttrOr("data-id", "")
 	mod.Level, err = strconv.Atoi(s.Find(".statmod-level").Text())
 	if err != nil {
-		log.Println("Error: %v", err)
+		log.Printf("Error: %v\n", err)
 	}
 	mod.Rarity = s.Find(".statmod-pip").Length()
 	shortname := strings.Fields(s.Find(".statmod-img").AttrOr("alt", "!Unkown!"))

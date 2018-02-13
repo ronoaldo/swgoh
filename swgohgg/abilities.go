@@ -2,18 +2,20 @@ package swgohgg
 
 import (
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
 )
 
+// Ability is a generic description of an ability for a given character.
 type Ability struct {
 	Name      string
 	Character string
 	IsZeta    bool
 }
 
+// Zetas fetches the current character abilities available in the
+// "/characters-zeta-abilities" website pages.
 func (c *Client) Zetas() (zetas []Ability, err error) {
 	for page := 1; page <= 5; page++ {
 		var (
@@ -34,8 +36,6 @@ func (c *Client) Zetas() (zetas []Ability, err error) {
 					Name:      strings.TrimSpace(split[1]),
 					IsZeta:    true,
 				})
-			} else {
-				log.Printf("> Skipped (len=%d)", len(split))
 			}
 		})
 		if len(aux) == 0 {
