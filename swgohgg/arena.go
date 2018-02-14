@@ -24,7 +24,6 @@ func (c *Client) Arena() (team []*CharacterStats, lastUpdate time.Time, err erro
 		}
 		basicStats[charName] = charBasicStats
 	})
-	fmt.Printf("basicStats => %#v", basicStats)
 	for name := range basicStats {
 		basic := basicStats[name]
 		if c.authorized {
