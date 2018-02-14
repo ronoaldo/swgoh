@@ -50,6 +50,16 @@ func (r Collection) ContainsAll(chars ...string) bool {
 	return true
 }
 
+// MinRarity returns a filtered collection containing the required min rarity.
+func (r Collection) MinRarity(stars int) (filtered Collection) {
+	for i := range r {
+		if r[i].Stars >= stars {
+			filtered = append(filtered, r[i])
+		}
+	}
+	return filtered
+}
+
 // Char is a single character unit holding the basic stats.
 type Char struct {
 	Name  string
