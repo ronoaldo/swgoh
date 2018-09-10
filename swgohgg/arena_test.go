@@ -12,7 +12,7 @@ func TestArena(t *testing.T) {
 	for i := range team {
 		char := team[i]
 		t.Logf("Team member: %v", char)
-		count ++
+		count++
 	}
 	if count != 5 {
 		t.Errorf("Got %d arena characters. Expected 5", count)

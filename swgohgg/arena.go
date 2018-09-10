@@ -28,21 +28,17 @@ func (c *Client) Arena() (team []*CharacterStats, lastUpdate time.Time, err erro
 	})
 	for _, name := range order {
 		basic := basicStats[name]
-		if c.authorized {
-			var stat *CharacterStats
-			stat, err = c.CharacterStats(name)
-			if err != nil {
-				return
-			}
-			if stat.GearLevel < 0 {
-				stat.Name = basic.Name
-				stat.Level = basic.GearLevel
-				stat.Stars = basic.Stars
-			}
-			team = append(team, stat)
-		} else {
-			team = append(team, &basic)
+		var stat *CharacterStats
+		stat, err = c.CharacterStats(name)
+		if err != nil {
+			return
 		}
+		if stat.GearLevel < 0 {
+			stat.Name = basic.Name
+			stat.Level = basic.GearLevel
+			stat.Stars = basic.Stars
+		}
+		team = append(team, stat)
 	}
 	timestamp := doc.Find(".user-last-updated .datetime").First().AttrOr("data-datetime", "0000-00-00T00:00:00Z")
 	lastUpdate, err = time.Parse(time.RFC3339, timestamp)

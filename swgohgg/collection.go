@@ -177,7 +177,7 @@ func (c *Client) CharacterStats(char string) (*CharacterStats, error) {
 	}
 
 	charStats := &CharacterStats{}
-	charStats.Name = doc.Find(".pc-char-overview-name").Text()
+	charStats.Name = strings.TrimSpace(doc.Find(".pc-char-overview-name").Text())
 	charStats.Level = atoi(doc.Find(".char-portrait-full-level").Text())
 	charStats.Stars = int(stars(doc.Find(".player-char-portrait")))
 	gearInfo := strings.Split(doc.Find(".pc-gear").First().Find(".pc-heading").First().AttrOr("title", "Gear -1 "), " ")
@@ -193,8 +193,15 @@ func (c *Client) CharacterStats(char string) (*CharacterStats, error) {
 		charStats.Skills = append(charStats.Skills, skill)
 	})
 	//Stats
-	doc.Find(".media-body .pc-stat").Each(func(i int, s *goquery.Selection) {
-		name, value := s.Find(".pc-stat-label").Text(), s.Find(".pc-stat-value").Text()
+	doc.Find(".unit-stat-group-stat").Each(func(i int, s *goquery.Selection) {
+		name, value := s.Find(".unit-stat-group-stat-label").Text(), s.Find(".unit-stat-group-stat-value").Text()
+		value = strings.TrimSpace(value)
+		if strings.Contains(value, "(") {
+			// Strip the later part for now.
+			// We can use the "added from mods" properties later
+			value = strings.Split(value, "(")[0]
+		}
+
 		switch strings.TrimSpace(name) {
 		case "Strength (STR)":
 			charStats.STR = atoi(value)
