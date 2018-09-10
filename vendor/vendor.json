@@ -39,6 +39,24 @@
 			"revisionTime": "2018-01-04T22:23:21Z"
 		},
 		{
+			"checksumSHA1": "IV4MN7KGBSocu/5NR3le3sxup4Y=",
+			"path": "golang.org/x/text/runes",
+			"revision": "4ae1256249243a4eb350a9a372e126557f2aa346",
+			"revisionTime": "2018-09-06T22:13:12Z"
+		},
+		{
+			"checksumSHA1": "ziMb9+ANGRJSSIuxYdRbA+cDRBQ=",
+			"path": "golang.org/x/text/transform",
+			"revision": "4ae1256249243a4eb350a9a372e126557f2aa346",
+			"revisionTime": "2018-09-06T22:13:12Z"
+		},
+		{
+			"checksumSHA1": "othnvXmmdxkNRyNDxRg5SKwLP8k=",
+			"path": "golang.org/x/text/unicode/norm",
+			"revision": "4ae1256249243a4eb350a9a372e126557f2aa346",
+			"revisionTime": "2018-09-06T22:13:12Z"
+		},
+		{
 			"checksumSHA1": "8M268g2UwVggcsd8rycU8KPzGKY=",
 			"path": "gopkg.in/yaml.v2",
 			"revision": "1244d3ce02e3e1c16820ada0bae506b6c479f106",
