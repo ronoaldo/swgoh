@@ -16,7 +16,7 @@ func (c *Client) Arena() (team []*CharacterStats, lastUpdate time.Time, err erro
 	}
 	order := make([]string, 0, 5)
 	basicStats := make(map[string]CharacterStats)
-	doc.Find(".current-rank-team").First().Find(".static-char-portrait").Each(func(i int, s *goquery.Selection) {
+	doc.Find(".current-rank-team").First().Find(".player-char-portrait").Each(func(i int, s *goquery.Selection) {
 		charName := s.AttrOr("title", "UNKOWN")
 		charBasicStats := CharacterStats{
 			Name:  charName,

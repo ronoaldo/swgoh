@@ -8,9 +8,17 @@ func TestArena(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	count := 0
 	for i := range team {
 		char := team[i]
 		t.Logf("Team member: %v", char)
+		count ++
 	}
-	t.Logf("Las update: %v", update)
+	if count != 5 {
+		t.Errorf("Got %d arena characters. Expected 5", count)
+	}
+	t.Logf("Last update: %v", update)
+	if update.IsZero() {
+		t.Errorf("Zero last update timstamp.")
+	}
 }
