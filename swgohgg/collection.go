@@ -77,7 +77,7 @@ func (c *Char) String() string {
 
 func parseChar(s *goquery.Selection) *Char {
 	var char Char
-	char.Name = s.Find(".collection-char-name-link").Text()
+	char.Name = strings.TrimSpace(s.Find(".collection-char-name-link").Text())
 	char.Level, _ = strconv.Atoi(s.Find(".char-portrait-full-level").Text())
 	char.Gear = gearLevel(s)
 	char.Stars = stars(s)
