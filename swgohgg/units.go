@@ -56,6 +56,8 @@ func CharName(src string) string {
 	case "sarge", "sargento", "clone sergeant", "sergeant":
 		return "Clone Sergeant - Phase I"
 	case "chewe", "chewie", "chewbacca", "chewbaca":
+		return "Chewbacca"
+	case "clone wars chewe":
 		return "Clone Wars Chewbacca"
 	case "cls", "commander luke", "commander luke skywalker":
 		return "Commander Luke Skywalker"
