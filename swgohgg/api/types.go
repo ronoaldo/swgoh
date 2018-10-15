@@ -129,8 +129,38 @@ type Character struct {
 	GearLevels     []GearLevel `json:"gear_levels"`
 }
 
+// Characters is a character slice with helper methods
+type Characters []Character
+
+// FromBaseID search for a character using it's Base ID as criteria.
+// Returns nil if the BaseID is not found.
+func (l Characters) FromBaseID(baseID string) *Character {
+	for _, char := range l {
+		if char.BaseID == baseID {
+			return &char
+		}
+	}
+	return nil
+}
+
 // GearLevel represents a character gear level item list.
 type GearLevel struct {
 	Tier    int      `json:"tier"`
 	GearIDs []string `json:"gear"`
+}
+
+// Ability contains information about each character or ship abilities in the game.
+type Ability struct {
+	BaseID string `json:"base_id"`
+	Name   string `json:"name"`
+	Image  string `json:"image"`
+	URL    string `json:"url"`
+
+	TierMax int  `json:"tier_max"`
+	IsZeta  bool `json:"is_zeta"`
+	IsOmega bool `json:"is_omega"`
+
+	Type            int    `json:"type"`
+	CombatType      int    `json:"combat_type"`
+	CharacterBaseID string `json:"character_base_id"`
 }

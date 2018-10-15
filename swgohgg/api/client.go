@@ -64,11 +64,12 @@ func (c *Client) get(path string, args ...interface{}) (resp *http.Response, err
 // Characters returns a list of all game characters. Use this method
 // to retrieve a list of characters and to use the resulting list in
 // lookups and the like.
-func (c *Client) Characters() (chars []Character, err error) {
+func (c *Client) Characters() (chars Characters, err error) {
 	resp, err := c.get("/characters/")
 	if err != nil {
 		return nil, err
 	}
+	defer resp.Body.Close()
 
 	if err = json.NewDecoder(resp.Body).Decode(&chars); err != nil {
 		return nil, err
@@ -84,10 +85,26 @@ func (c *Client) Player(allyCode string) (player *Player, err error) {
 	if err != nil {
 		return nil, err
 	}
+	defer resp.Body.Close()
 
 	if err = json.NewDecoder(resp.Body).Decode(&player); err != nil {
 		return nil, err
 	}
 
 	return player, nil
+}
+
+// Abilities list all available game abilities
+func (c *Client) Abilities() (abilities []Ability, err error) {
+	resp, err := c.get("/abilities/")
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	if err = json.NewDecoder(resp.Body).Decode(&abilities); err != nil {
+		return nil, err
+	}
+
+	return
 }

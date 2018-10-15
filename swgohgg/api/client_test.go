@@ -3,6 +3,7 @@ package api_test
 import (
 	"context"
 	"flag"
+	"strings"
 	"testing"
 
 	"github.com/ronoaldo/swgoh/swgohgg/api"
@@ -65,6 +66,9 @@ func TestCharactersCall(t *testing.T) {
 	// Assertions using Darth Vader
 	darthVaderFound := false
 	for _, char := range chars {
+		if char.BaseID == "" {
+			t.Errorf("Unexpected empty base_id field for character: %#v", char)
+		}
 		if char.Name == "Darth Vader" {
 			darthVaderFound = true
 			if char.PK == 0 {
@@ -103,5 +107,29 @@ func TestCharactersCall(t *testing.T) {
 	}
 	if !darthVaderFound {
 		t.Errorf("Missing 'Darth Vader' character!")
+	}
+}
+
+func TestAbilitiesCall(t *testing.T) {
+	c := api.NewClient(context.Background())
+	abilities, err := c.Abilities()
+	if err != nil {
+		t.Fatalf("Unexpected error listing abilities: %v", err)
+	}
+
+	t.Logf("Decoded %d abilityes (err=%v)", len(abilities), err)
+
+	if len(abilities) == 0 {
+		t.Errorf("Invalid abilities length: 0")
+	}
+
+	for i := range abilities {
+		ability := abilities[i]
+		if strings.TrimSpace(ability.BaseID) == "" {
+			t.Errorf("Empty ability base_id decoded: %v", ability)
+		}
+		if strings.TrimSpace(ability.Name) == "" {
+			t.Errorf("Empty ability name decoded: %v", ability)
+		}
 	}
 }
