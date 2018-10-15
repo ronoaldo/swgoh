@@ -1,47 +1,49 @@
 package swgohgg
 
-import (
-	"fmt"
-	"strings"
-
-	"github.com/PuerkitoBio/goquery"
-)
+import "fmt"
 
 // Ability is a generic description of an ability for a given character.
 type Ability struct {
-	Name      string
-	Character string
-	IsZeta    bool
+	Name            string
+	Character       string
+	CharacterBaseID string
+	IsZeta          bool
+}
+
+func (a Ability) String() string {
+	suffix := ""
+	if a.IsZeta {
+		suffix = " (zeta)"
+	}
+	return fmt.Sprintf("{%s ability \"%s\"%s}", a.Character, a.Name, suffix)
 }
 
 // Zetas fetches the current character abilities available in the
 // "/characters-zeta-abilities" website pages.
 func (c *Client) Zetas() (zetas []Ability, err error) {
-	for page := 1; page <= 5; page++ {
-		var (
-			doc *goquery.Document
-			url = fmt.Sprintf("https://swgoh.gg/characters/zeta-abilities/?page=%d", page)
-		)
-		doc, err = c.Get(url)
-		if err != nil {
-			return
-		}
-		aux := make([]Ability, 0)
-		doc.Find(".media-list-stream .character h5").Each(func(i int, s *goquery.Selection) {
-			// Commander Luke Skywalker · Rebel Maneuvers
-			split := strings.Split(s.Text(), " · ")
-			if len(split) >= 2 {
-				aux = append(aux, Ability{
-					Character: strings.TrimSpace(split[0]),
-					Name:      strings.TrimSpace(split[1]),
-					IsZeta:    true,
-				})
-			}
-		})
-		if len(aux) == 0 {
-			break
-		}
-		zetas = append(zetas, aux...)
+	chars, err := c.gg.Characters()
+	if err != nil {
+		return nil, err
 	}
+
+	abilities, err := c.gg.Abilities()
+	if err != nil {
+		return nil, err
+	}
+	for _, a := range abilities {
+		if a.IsZeta {
+			char := chars.FromBaseID(a.CharacterBaseID)
+			if char == nil {
+				return nil, fmt.Errorf("swgohgg: unexpected character base ID from zetas: %v", a.CharacterBaseID)
+			}
+			zetas = append(zetas, Ability{
+				Name:            a.Name,
+				IsZeta:          true,
+				Character:       char.Name,
+				CharacterBaseID: a.CharacterBaseID,
+			})
+		}
+	}
+
 	return
 }
