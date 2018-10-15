@@ -2,6 +2,8 @@ package swgohgg
 
 import (
 	"fmt"
+	"log"
+	"strings"
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
@@ -42,5 +44,12 @@ func (c *Client) Arena() (team []*CharacterStats, lastUpdate time.Time, err erro
 	}
 	timestamp := doc.Find(".user-last-updated .datetime").First().AttrOr("data-datetime", "0000-00-00T00:00:00Z")
 	lastUpdate, err = time.Parse(time.RFC3339, timestamp)
+	doc.Find(".panel-body > p").Each(func(i int, s *goquery.Selection) {
+		log.Printf("Searching for ally code %v", s.Text())
+		text := strings.ToLower(s.Text())
+		if strings.Contains(text, "ally code") {
+			c.SetAllyCode(nonDigits.ReplaceAllString(text, ""))
+		}
+	})
 	return
 }

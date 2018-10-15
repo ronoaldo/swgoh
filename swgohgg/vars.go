@@ -2,6 +2,7 @@ package swgohgg
 
 import (
 	"fmt"
+	"regexp"
 )
 
 var (
@@ -21,4 +22,6 @@ var (
 	}
 
 	errNotImplemented = fmt.Errorf("swgohgg: not implemented")
+
+	nonDigits = regexp.MustCompile("[^0-9]")
 )

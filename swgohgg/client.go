@@ -2,6 +2,7 @@ package swgohgg
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -9,28 +10,33 @@ import (
 	"net/url"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/ronoaldo/swgoh/swgohgg/api"
 )
 
 // Client implements methods to interact with the https://swgoh.gg/ website.
 type Client struct {
+	gg         *api.Client
 	hc         *http.Client
 	profile    string
+	allyCode   string
 	authorized bool
 }
 
 // NewClient initializes a new instance of the client, tied to the specified user profile.
 func NewClient(profile string) *Client {
+	// Build up the HTTP client for website requests
 	jar, err := cookiejar.New(nil)
 	if err != nil {
 		// Should never happen.
 		panic(err)
 	}
-
 	c := &Client{
 		hc:      http.DefaultClient,
 		profile: profile,
 	}
 	c.hc.Jar = jar
+	// Build up the API client for API endpoint requests
+	c.gg = api.NewClient(context.Background())
 	return c
 }
 
@@ -61,9 +67,27 @@ func (c *Client) UseHTTPClient(hc *http.Client) *Client {
 }
 
 // Profile sets the client profile to a new value.
+// *DEPRECATED*: use SetAllyCode instead.
 func (c *Client) Profile(profile string) *Client {
 	c.profile = profile
 	return c
+}
+
+// SetAllyCode set's the Ally Code for the client.
+func (c *Client) SetAllyCode(allyCode string) *Client {
+	c.allyCode = nonDigits.ReplaceAllString(allyCode, "")
+	return c
+}
+
+// AllyCode returns the player ally code
+func (c *Client) AllyCode() string {
+	if c.allyCode == "" {
+		// Fetch and cache ally code
+		if c.allyCode == "" {
+			c.Arena()
+		}
+	}
+	return c.allyCode
 }
 
 // Login authorizes the bot client using the provided username and password.

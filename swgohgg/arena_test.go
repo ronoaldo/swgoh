@@ -8,6 +8,10 @@ func TestArena(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	t.Logf("Ally Code %s", gg.AllyCode())
+	if gg.AllyCode() == "" {
+		t.Errorf("Unexpected empty ally code returned.")
+	}
 	count := 0
 	for i := range team {
 		char := team[i]
