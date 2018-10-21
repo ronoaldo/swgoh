@@ -34,17 +34,8 @@ type Player struct {
 
 // PlayerTitle is a list of player unlocked and selected titles.
 type PlayerTitle struct {
-	Slected  string   `json:"selected,omitempty"`
+	Selected string   `json:"selected,omitempty"`
 	Unlocked []string `json:"unlocked,omitempty"`
-}
-
-// PlayerRequest is the payload sent to the /swgoh/player endpoint.
-type PlayerRequest struct {
-	AllyCodes []string `json:"allycode,omitempty"`
-	Lang      string   `json:"language,omitempty"`
-	Enums     bool     `json:"enums,omitempty"`
-
-	Project map[string]int `json:"project,omitempty"`
 }
 
 // PlayerStat is a single player profile statistic info, like how many battles won.
@@ -117,6 +108,14 @@ type SquadUnit struct {
 	ID     string `json:"id,omitempty"`
 	UnitID string `json:"defId,omitempty"`
 	Type   string `json:"squadUnitType,omitempty"`
+}
+
+// DataPlayerTitle is the data library information about player titles.
+type DataPlayerTitle struct {
+	ID      string `json:"id,omitempty"`
+	Name    string `json:"nameKey,omitempty"`
+	Desc    string `json:"descKey,omitempty"`
+	Details string `json:"shortDescKey,omitempty"`
 }
 
 // Timestamp is a helper unix timestamp JSON marshaller/unmarshaller.

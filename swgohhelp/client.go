@@ -23,6 +23,7 @@ type Client struct {
 	endpoint string
 	token    string
 	debug    bool
+	cache    dataCache
 }
 
 // New initializes an instance of Client making it ready to use.
@@ -92,11 +93,11 @@ func (c *Client) SignIn(username, password string) (accessToken string, err erro
 
 // Players retrieves several player profile stats and roster details.
 func (c *Client) Players(allyCodes ...string) (players []Player, err error) {
-	payload, err := json.Marshal(PlayerRequest{
-		AllyCodes: allyCodes,
-		Lang:      "eng_us",
-		Enums:     true,
-		Project: map[string]int{
+	payload, err := json.Marshal(map[string]interface{}{
+		"allycode": allyCodes,
+		"language": "eng_us",
+		"enums":    true,
+		"project": map[string]int{
 			"id":         1,
 			"allyCode":   1,
 			"name":       1,
@@ -111,15 +112,75 @@ func (c *Client) Players(allyCodes ...string) (players []Player, err error) {
 		},
 	})
 	if err != nil {
-		return
+		return nil, err
 	}
 	resp, err := c.call("POST", "/swgoh/player", "application/json", bytes.NewReader(payload))
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	err = json.NewDecoder(resp.Body).Decode(&players)
+	if err != nil {
+		return nil, err
+	}
+
+	// Enrich result with related data from data collections
+	titles, err := c.DataPlayerTitles()
+	if err != nil {
+		return nil, err
+	}
+	for i := range players {
+		players[i].Titles.Selected = titles[players[i].Titles.Selected].Name
+		for j := range players[i].Titles.Unlocked {
+			titleKey := players[i].Titles.Unlocked[j]
+			players[i].Titles.Unlocked[j] = titles[titleKey].Name
+		}
+	}
+
+	return players, nil
+}
+
+// DataPlayerTitles retrieves the data collection for player titles.
+func (c *Client) DataPlayerTitles() (result map[string]DataPlayerTitle, err error) {
+	if c.cache.playerTitles != nil {
+		return c.cache.playerTitles, nil
+	}
+	// Prepare data collection call
+	payload, err := json.Marshal(map[string]interface{}{
+		"collection": "playerTitleList",
+		"language":   "eng_us",
+		"match": map[string]interface{}{
+			"hidden":     false,
+			"obtainable": true,
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
+	// Parse result
+	resp, err := c.call("POST", "/swgoh/data", "application/json", bytes.NewReader(payload))
 	if err != nil {
 		return
 	}
 	defer resp.Body.Close()
-	err = json.NewDecoder(resp.Body).Decode(&players)
+	titles := make([]DataPlayerTitle, 0)
+	err = json.NewDecoder(resp.Body).Decode(&titles)
+	if err != nil {
+		return
+	}
+	// Prepare response as map for easier usage
+	result = make(map[string]DataPlayerTitle)
+	for i := range titles {
+		result[titles[i].ID] = titles[i]
+	}
+	c.cache.playerTitles = result
 	return
+}
+
+// In memory cache of global game data.
+type dataCache struct {
+	playerTitles map[string]DataPlayerTitle
+	units        map[string]Unit
 }
 
 // writeLogFile is a debug helper function to write log data.

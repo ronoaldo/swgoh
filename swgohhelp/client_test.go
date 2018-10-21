@@ -45,7 +45,7 @@ func TestPlayer(t *testing.T) {
 
 	for i := range players {
 		player := players[i]
-		t.Logf("Player %s (%d) *%s*", player.Name, player.AllyCode, player.Titles.Slected)
+		t.Logf("Player %s (%d) *%s*", player.Name, player.AllyCode, player.Titles.Selected)
 		for _, stat := range player.Stats {
 			t.Logf("%s %d", stat.Name, stat.Value)
 		}
@@ -58,6 +58,25 @@ func TestPlayer(t *testing.T) {
 		for _, unit := range player.Roster {
 			t.Logf("%s %d* Lvl%d G%d", unit.Name, unit.Rarity, unit.Level, unit.Gear)
 		}
+	}
+}
+
+func TestDataPlayerTitles(t *testing.T) {
+	checkAuth(t, "DataPlayerTitles")
+
+	swapi := swgohhelp.New(context.Background()).SetDebug(true)
+	if _, err := swapi.SignIn(username, password); err != nil {
+		t.Fatalf("Unable to authorize client: %v", err)
+	}
+
+	titles, err := swapi.DataPlayerTitles()
+	if err != nil {
+		t.Fatalf("Unexpected error fetching titles: %v", titles)
+	}
+
+	for i := range titles {
+		title := titles[i]
+		t.Logf("Title #%d[%s]: %s -\n %s\n %s", i, title.ID, title.Name, title.Desc, title.Details)
 	}
 }
 
