@@ -2,7 +2,6 @@ package swgohhelp_test
 
 import (
 	"context"
-	"encoding/json"
 	"flag"
 	"testing"
 
@@ -45,13 +44,20 @@ func TestPlayer(t *testing.T) {
 	}
 
 	for i := range players {
-		// Format for logging
-		b, err := json.MarshalIndent(players[i], "", "  ")
-		if err != nil {
-			t.Errorf("> Unable to marshal player: %v", err)
-			continue
+		player := players[i]
+		t.Logf("Player %s (%d) *%s*", player.Name, player.AllyCode, player.Titles.Slected)
+		for _, stat := range player.Stats {
+			t.Logf("%s %d", stat.Name, stat.Value)
 		}
-		t.Logf("players[%d] => %v (%s), updated at %v:\n%s", i, players[i].AllyCode, players[i].Name, players[i].UpdatedAt, string(b))
+		t.Logf("Arena rank %d", player.Arena.Char.Rank)
+		t.Logf("Arena team: %v", player.Arena.Char.Squad)
+		t.Logf("Ships rank %d", player.Arena.Ship.Rank)
+		t.Logf("Ships team: %v", player.Arena.Ship.Squad)
+
+		t.Logf("Roster: ")
+		for _, unit := range player.Roster {
+			t.Logf("%s %d* Lvl%d G%d", unit.Name, unit.Rarity, unit.Level, unit.Gear)
+		}
 	}
 }
 

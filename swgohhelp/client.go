@@ -118,7 +118,7 @@ func (c *Client) Players(allyCodes ...string) (players []Player, err error) {
 		return
 	}
 	defer resp.Body.Close()
-	json.NewDecoder(resp.Body).Decode(&players)
+	err = json.NewDecoder(resp.Body).Decode(&players)
 	return
 }
 
