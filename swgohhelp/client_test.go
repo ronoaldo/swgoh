@@ -45,7 +45,7 @@ func TestPlayer(t *testing.T) {
 
 	for i := range players {
 		player := players[i]
-		t.Logf("Player %s (%d) *%s*", player.Name, player.AllyCode, player.Titles.Selected)
+		t.Logf("Player %s (%d) %s", player.Name, player.AllyCode, player.Titles.Selected)
 		for _, stat := range player.Stats {
 			t.Logf("%s %d", stat.Name, stat.Value)
 		}
@@ -76,7 +76,7 @@ func TestDataPlayerTitles(t *testing.T) {
 
 	for i := range titles {
 		title := titles[i]
-		t.Logf("Title #%d[%s]: %s -\n %s\n %s", i, title.ID, title.Name, title.Desc, title.Details)
+		t.Logf("Title #%s: %s -\n %s\n %s", i, title.Name, title.Desc, title.Details)
 	}
 }
 
