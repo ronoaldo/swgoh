@@ -140,49 +140,6 @@ func (c *Client) Players(allyCodes ...string) (players []Player, err error) {
 	return players, nil
 }
 
-// DataPlayerTitles retrieves the data collection for player titles.
-func (c *Client) DataPlayerTitles() (result map[string]DataPlayerTitle, err error) {
-	if c.cache.playerTitles != nil {
-		return c.cache.playerTitles, nil
-	}
-	// Prepare data collection call
-	payload, err := json.Marshal(map[string]interface{}{
-		"collection": "playerTitleList",
-		"language":   "eng_us",
-		"match": map[string]interface{}{
-			"hidden":     false,
-			"obtainable": true,
-		},
-	})
-	if err != nil {
-		return nil, err
-	}
-	// Parse result
-	resp, err := c.call("POST", "/swgoh/data", "application/json", bytes.NewReader(payload))
-	if err != nil {
-		return
-	}
-	defer resp.Body.Close()
-	titles := make([]DataPlayerTitle, 0)
-	err = json.NewDecoder(resp.Body).Decode(&titles)
-	if err != nil {
-		return
-	}
-	// Prepare response as map for easier usage
-	result = make(map[string]DataPlayerTitle)
-	for i := range titles {
-		result[titles[i].ID] = titles[i]
-	}
-	c.cache.playerTitles = result
-	return
-}
-
-// In memory cache of global game data.
-type dataCache struct {
-	playerTitles map[string]DataPlayerTitle
-	units        map[string]Unit
-}
-
 // writeLogFile is a debug helper function to write log data.
 func writeLogFile(b []byte, reqresp, method, urlPath string) {
 	urlPath = strings.Replace(urlPath, "/", "_", -1)

@@ -61,25 +61,6 @@ func TestPlayer(t *testing.T) {
 	}
 }
 
-func TestDataPlayerTitles(t *testing.T) {
-	checkAuth(t, "DataPlayerTitles")
-
-	swapi := swgohhelp.New(context.Background()).SetDebug(true)
-	if _, err := swapi.SignIn(username, password); err != nil {
-		t.Fatalf("Unable to authorize client: %v", err)
-	}
-
-	titles, err := swapi.DataPlayerTitles()
-	if err != nil {
-		t.Fatalf("Unexpected error fetching titles: %v", titles)
-	}
-
-	for i := range titles {
-		title := titles[i]
-		t.Logf("Title #%s: %s -\n %s\n %s", i, title.Name, title.Desc, title.Details)
-	}
-}
-
 func checkAuth(t *testing.T, name string) {
 	if username == "" || password == "" {
 		t.Fatalf("Missing credentials for test '%s'", name)

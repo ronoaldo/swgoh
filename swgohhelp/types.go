@@ -110,14 +110,6 @@ type SquadUnit struct {
 	Type   string `json:"squadUnitType,omitempty"`
 }
 
-// DataPlayerTitle is the data library information about player titles.
-type DataPlayerTitle struct {
-	ID      string `json:"id,omitempty"`
-	Name    string `json:"nameKey,omitempty"`
-	Desc    string `json:"descKey,omitempty"`
-	Details string `json:"shortDescKey,omitempty"`
-}
-
 // Timestamp is a helper unix timestamp JSON marshaller/unmarshaller.
 // Source: https://gist.github.com/alexmcroberts/219127816e7a16c7bd70
 type Timestamp time.Time
