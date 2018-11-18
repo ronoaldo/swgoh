@@ -12,10 +12,15 @@ import (
 	"net/http/httputil"
 	"os"
 	"path"
+	"regexp"
+	"strconv"
 	"strings"
 )
 
 var errNotImplemented = fmt.Errorf("swgohapi: not implemented")
+
+// DefaultEndpoint is the default target host for API calls
+var DefaultEndpoint = "https://apiv2.swgoh.help"
 
 // Client implements an authenticated callee to the https://api.swgoh.help service.
 type Client struct {
@@ -30,7 +35,7 @@ type Client struct {
 func New(ctx context.Context) *Client {
 	return &Client{
 		hc:       http.DefaultClient,
-		endpoint: "https://api.swgoh.help",
+		endpoint: DefaultEndpoint,
 	}
 }
 
@@ -93,10 +98,14 @@ func (c *Client) SignIn(username, password string) (accessToken string, err erro
 
 // Players retrieves several player profile stats and roster details.
 func (c *Client) Players(allyCodes ...string) (players []Player, err error) {
+	allyCodeNumbers, err := parseAllyCodes(allyCodes...)
+	if err != nil {
+		return nil, fmt.Errorf("swgohhelp: error parsing ally codes: %v", err)
+	}
 	payload, err := json.Marshal(map[string]interface{}{
-		"allycode": allyCodes,
-		"language": "eng_us",
-		"enums":    true,
+		"allycodes": allyCodeNumbers,
+		"language":  "eng_us",
+		"enums":     true,
 		"project": map[string]int{
 			"id":         1,
 			"allyCode":   1,
@@ -145,4 +154,18 @@ func writeLogFile(b []byte, reqresp, method, urlPath string) {
 	urlPath = strings.Replace(urlPath, "/", "_", -1)
 	fname := path.Join(os.TempDir(), fmt.Sprintf("swgohhelp%s-%s-%s.log", urlPath, method, reqresp))
 	log.Printf("swgohhelp: writing log file %s: result: %v", fname, ioutil.WriteFile(fname, b, 0644))
+}
+
+var allyCodeCleanup = regexp.MustCompile("[^0-9]")
+
+// parseAllyCodes takes several ally code as strings and returns integer equivalents.
+func parseAllyCodes(allyCodes ...string) (allyCodeNumbers []int, err error) {
+	for _, a := range allyCodes {
+		n, err := strconv.Atoi(allyCodeCleanup.ReplaceAllString(a, ""))
+		if err != nil {
+			return nil, err
+		}
+		allyCodeNumbers = append(allyCodeNumbers, n)
+	}
+	return
 }
