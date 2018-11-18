@@ -17,7 +17,7 @@ import (
 	"strings"
 )
 
-var errNotImplemented = fmt.Errorf("swgohapi: not implemented")
+var errNotImplemented = fmt.Errorf("swgohhelp: not implemented")
 
 // DefaultEndpoint is the default target host for API calls
 var DefaultEndpoint = "https://apiv2.swgoh.help"
@@ -74,7 +74,7 @@ func (c *Client) call(method, urlPath, contentType string, body io.Reader, args 
 	}
 
 	if resp.StatusCode < 200 || resp.StatusCode > 299 {
-		return nil, fmt.Errorf("swgohapi: unexpected stauts code calling %s: %d %s", url, resp.StatusCode, resp.Status)
+		return nil, fmt.Errorf("swgohhelp: unexpected stauts code calling %s: %d %s", url, resp.StatusCode, resp.Status)
 	}
 
 	return resp, nil
