@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	profile        string
+	allyCode       string
 	username       string
 	password       string
 	starLevel      int
@@ -28,9 +28,9 @@ var (
 )
 
 func init() {
-	flag.StringVar(&profile, "profile", "", "The user `profile` on https://swgoh.gg/")
+	flag.StringVar(&allyCode, "a", "", "The user `ally code` in game")
 	flag.StringVar(&username, "u", "", "The `username` to authenticate")
-	flag.StringVar(&password, "p", "", "The `password` to authenticate.")
+	flag.StringVar(&password, "p", "", "The `password` to authenticate")
 
 	// Operation flags
 	flag.BoolVar(&showCollection, "collection", false, "Show user character collection")
@@ -115,7 +115,7 @@ func fetchStats(swgg *swgohgg.Client) (stats *swgohgg.CharacterStats, err error)
 
 func main() {
 	flag.Parse()
-	swgg := swgohgg.NewClient(profile)
+	swgg := swgohgg.NewClient("").SetAllyCode(allyCode)
 
 	if username != "" && password != "" {
 		log.Printf("Authenticating as %s", username)
@@ -134,7 +134,7 @@ func main() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		fmt.Printf("Stats for %s's '%s':\n", profile, charFilter)
+		fmt.Printf("Stats for %s's '%s':\n", allyCode, charFilter)
 		fmt.Println(string(b))
 	}
 

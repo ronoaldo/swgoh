@@ -416,9 +416,10 @@ func (set ModSet) BonusForSet(stat string) float64 {
 
 // Mods reutrns a mod collection of mods with the given filter.
 func (c *Client) Mods(filter ModFilter) (mods ModCollection, err error) {
+	allyCode := c.AllyCode()
 	page := 1
 	for {
-		url := fmt.Sprintf("https://swgoh.gg/u/%s/mods/?page=%d", c.profile, page)
+		url := fmt.Sprintf("https://swgoh.gg/p/%s/mods/?page=%d", allyCode, page)
 		resp, err := c.hc.Get(url)
 		if err != nil {
 			return nil, err
@@ -434,7 +435,8 @@ func (c *Client) Mods(filter ModFilter) (mods ModCollection, err error) {
 			mods = append(mods, mod)
 			count++
 		})
-		if count < (12 * 3) {
+		// Soft-disabled mods for more than one page while we are not fetching from the API
+		if count < (12*3) || page > 2 {
 			break
 		}
 		page++

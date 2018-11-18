@@ -63,6 +63,6 @@ func TestPlayer(t *testing.T) {
 
 func checkAuth(t *testing.T, name string) {
 	if username == "" || password == "" {
-		t.Fatalf("Missing credentials for test '%s'", name)
+		t.Skip("Missing credentials for test '%s'", name)
 	}
 }

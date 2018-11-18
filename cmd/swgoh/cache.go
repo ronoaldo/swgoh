@@ -13,7 +13,7 @@ func cacheFileName(kind string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	file := fmt.Sprintf("swgoh.%s.%s.json", profile, kind)
+	file := fmt.Sprintf("swgoh.%s.%s.json", allyCode, kind)
 	return path.Join(usr.HomeDir, file), nil
 }
 

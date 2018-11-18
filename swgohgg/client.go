@@ -17,7 +17,9 @@ import (
 type Client struct {
 	gg         *api.Client
 	hc         *http.Client
-	profile    string
+	guildName  string
+	playerName string
+	shortLink  string
 	allyCode   string
 	authorized bool
 }
@@ -31,8 +33,8 @@ func NewClient(profile string) *Client {
 		panic(err)
 	}
 	c := &Client{
-		hc:      http.DefaultClient,
-		profile: profile,
+		hc:        http.DefaultClient,
+		shortLink: profile,
 	}
 	c.hc.Jar = jar
 	// Build up the API client for API endpoint requests
@@ -49,7 +51,7 @@ func (c *Client) Get(url string) (*goquery.Document, error) {
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode == 404 {
-		return nil, fmt.Errorf("swgohgg: unable to find collection for profile '%s'", c.profile)
+		return nil, fmt.Errorf("swgohgg: unable to find collection for profile '%s'", url)
 	}
 	if resp.StatusCode != 200 {
 		return nil, fmt.Errorf("swgohgg: unexpected status code %d", resp.StatusCode)
@@ -69,7 +71,7 @@ func (c *Client) UseHTTPClient(hc *http.Client) *Client {
 // Profile sets the client profile to a new value.
 // *DEPRECATED*: use SetAllyCode instead.
 func (c *Client) Profile(profile string) *Client {
-	c.profile = profile
+	c.shortLink = profile
 	return c
 }
 
@@ -81,13 +83,21 @@ func (c *Client) SetAllyCode(allyCode string) *Client {
 
 // AllyCode returns the player ally code
 func (c *Client) AllyCode() string {
+	// Fetch and cache ally code
 	if c.allyCode == "" {
-		// Fetch and cache ally code
-		if c.allyCode == "" {
-			c.Arena()
-		}
+		c.Arena()
 	}
 	return c.allyCode
+}
+
+// PlayerName returns the player nickname
+func (c *Client) PlayerName() string {
+	return c.playerName
+}
+
+// GuildName returns the player guild name
+func (c *Client) GuildName() string {
+	return c.guildName
 }
 
 // Login authorizes the bot client using the provided username and password.

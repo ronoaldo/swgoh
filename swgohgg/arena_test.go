@@ -1,6 +1,8 @@
 package swgohgg
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestArena(t *testing.T) {
 	gg := NewClient("ronoaldo")
@@ -12,6 +14,7 @@ func TestArena(t *testing.T) {
 	if gg.AllyCode() == "" {
 		t.Errorf("Unexpected empty ally code returned.")
 	}
+	t.Logf("Player/Guild: %s/%s", gg.PlayerName(), gg.GuildName())
 	count := 0
 	for i := range team {
 		char := team[i]

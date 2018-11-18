@@ -10,7 +10,8 @@ import (
 
 // Ships returns a collection of ships the player has and are active.
 func (c *Client) Ships() (ships Ships, err error) {
-	url := fmt.Sprintf("https://swgoh.gg/u/%s/ships/", c.profile)
+	allyCode := c.AllyCode()
+	url := fmt.Sprintf("https://swgoh.gg/p/%s/ships/", allyCode)
 	doc, err := c.Get(url)
 	if err != nil {
 		return nil, err
