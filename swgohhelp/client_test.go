@@ -19,7 +19,7 @@ func init() {
 func TestClientAuth(t *testing.T) {
 	checkAuth(t, "ClientAuth")
 
-	c := swgohhelp.New(context.Background())
+	c := swgohhelp.New(context.Background()).SetDebug(true)
 	token, err := c.SignIn(username, password)
 	if err != nil {
 		t.Fatalf("Unexpected error signing in: %v", err)
@@ -57,6 +57,12 @@ func TestPlayer(t *testing.T) {
 		t.Logf("Roster: ")
 		for _, unit := range player.Roster {
 			t.Logf("%s %d* Lvl%d G%d", unit.Name, unit.Rarity, unit.Level, unit.Gear)
+			if unit.Stats != nil {
+				f := unit.Stats.Final
+				m := unit.Stats.FromMods
+				t.Logf("   %d (%d) speed, %d (%d) protection and %d (%d) health",
+					f.Speed, m.Speed, f.Protection, m.Protection, f.Health, m.Health)
+			}
 		}
 	}
 }

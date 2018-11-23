@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"log"
@@ -8,6 +9,7 @@ import (
 	"gopkg.in/yaml.v2"
 
 	"github.com/ronoaldo/swgoh/swgohgg"
+	"github.com/ronoaldo/swgoh/swgohhelp"
 )
 
 var (
@@ -15,16 +17,17 @@ var (
 	username       string
 	password       string
 	starLevel      int
-	charFilter     string
+	unitFilter     string
 	optimizeStat   string
 	maxStat        string
 	shape          string
-	showCollection bool
+	showCharacters bool
 	showShips      bool
 	showMods       bool
 	showStats      bool
 	showArena      bool
 	useCache       bool
+	debug          bool
 )
 
 func init() {
@@ -33,7 +36,7 @@ func init() {
 	flag.StringVar(&password, "p", "", "The `password` to authenticate")
 
 	// Operation flags
-	flag.BoolVar(&showCollection, "collection", false, "Show user character collection")
+	flag.BoolVar(&showCharacters, "characters", false, "Show user character collection")
 	flag.BoolVar(&showShips, "ships", false, "Show user ships collection")
 	flag.BoolVar(&showMods, "mods", false, "Show user mods collection")
 	flag.BoolVar(&showStats, "stats", false, "Show a single character stats (requires -char)")
@@ -41,180 +44,127 @@ func init() {
 
 	// Cache flags
 	flag.BoolVar(&useCache, "cache", true, "Use cache to save mod query")
+	flag.BoolVar(&debug, "debug", false, "Debug request and response to temporary folder")
 
 	// Filter flags
 	flag.IntVar(&starLevel, "stars", 0, "The minimal character or mod `stars` to display")
-	flag.StringVar(&charFilter, "char", "", "Restrict mods used by this `character`")
+	flag.StringVar(&unitFilter, "unit", "", "Restrict mods used by this `character`")
 	flag.StringVar(&optimizeStat, "optimize-set", "", "Build a set optimized with this `stat` looking up for all combinations")
 	flag.StringVar(&maxStat, "max-set", "", "Suggest a set that has the provided `stat` best values")
 	flag.StringVar(&shape, "shape", "", "Filter mods by this `shape`")
 }
 
-func fetchCollection(swgg *swgohgg.Client) (collection swgohgg.Collection, err error) {
-	log.Printf("Fetching collection ...")
-	collection = make(swgohgg.Collection, 0)
-	err = loadCache("collection", &collection)
-	if err != nil {
-		log.Printf("Data not cached, loading from website (%v)", err)
-		collection, err = swgg.Collection()
-		if err != nil {
-			log.Fatal(err)
-		}
-		if useCache {
-			if err = saveCache("collection", &collection); err != nil {
-				log.Printf("Can't save to cache: %v", err)
-			}
-		}
-	}
-	return collection, nil
-}
-
-func fetchShips(swgg *swgohgg.Client) (ships swgohgg.Ships, err error) {
-	log.Printf("Fetching ships ...")
-	ships = make(swgohgg.Ships, 0)
-	err = loadCache("ships", &ships)
-	if err != nil {
-		log.Printf("Data not cached, loading from website (%v)", err)
-		ships, err = swgg.Ships()
-		if err != nil {
-			log.Fatal(err)
-		}
-		if useCache {
-			if err = saveCache("ships", &ships); err != nil {
-				log.Printf("Can't save to cache: %v", err)
-			}
-		}
-	}
-	return ships, nil
-}
-
-var modFilterAll = swgohgg.ModFilter{}
-
-func fetchMods(swgg *swgohgg.Client) (mods swgohgg.ModCollection, err error) {
-	mods = make(swgohgg.ModCollection, 0)
-	err = loadCache("mods", &mods)
-	if err != nil || !useCache {
-		log.Printf("Not using cache (%v)", err)
-		mods, err = swgg.Mods(modFilterAll)
-		if err != nil {
-			log.Fatal(err)
-		}
-		if useCache {
-			if err = saveCache("mods", &mods); err != nil {
-				log.Printf("Can't save to cache: %v", err)
-			}
-		}
-	}
-	return mods, nil
-}
-
-func fetchStats(swgg *swgohgg.Client) (stats *swgohgg.CharacterStats, err error) {
-	// TODO(ronoaldo) add cache support for stats
-	return swgg.CharacterStats(charFilter)
-}
-
 func main() {
 	flag.Parse()
-	swgg := swgohgg.NewClient("").SetAllyCode(allyCode)
-
-	if username != "" && password != "" {
-		log.Printf("Authenticating as %s", username)
-		if err := swgg.Login(username, password); err != nil {
-			log.Fatalf("Fatal error: %v", err)
-		}
-		log.Printf("Authenticated")
+	ctx := context.Background()
+	swgoh := swgohhelp.New(ctx).SetDebug(debug)
+	if _, err := swgoh.SignIn(username, password); err != nil {
+		log.Fatalf("swgoh: error authenticating with API backend: %v", err)
 	}
 
+	players, err := swgoh.Players(allyCode)
+	if err != nil {
+		log.Fatalf("swgoh: error fetching player profile from API: %v", err)
+	}
+
+	player := players[0]
+	unitFilter = swgohgg.CharName(unitFilter)
 	if showStats {
-		stats, err := fetchStats(swgg)
-		if err != nil {
-			log.Fatal(err)
+		for _, unit := range player.Roster {
+			if unit.Name == unitFilter {
+				// Unit found dump stats
+				b, err := yaml.Marshal(unit)
+				if err != nil {
+					log.Fatal(err)
+				}
+				fmt.Printf("Stats for %s's '%s':\n", player.Name, unitFilter)
+				fmt.Println(string(b))
+				break
+			}
 		}
-		b, err := yaml.Marshal(stats)
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Printf("Stats for %s's '%s':\n", allyCode, charFilter)
-		fmt.Println(string(b))
 	}
 
-	if showCollection {
-		collection, err := fetchCollection(swgg)
-		if err != nil {
-			log.Fatal(err)
-		}
-		for _, char := range collection {
-			if char.Stars >= starLevel {
-				fmt.Println(char)
+	if showCharacters {
+		for _, u := range player.Roster {
+			if u.Rarity >= starLevel && u.CombatType == swgohhelp.CombatTypeChar {
+				fmt.Println(fmt.Sprintf("%s %d* G%d Lvl%d", u.Name, u.Rarity, u.Gear, u.Level))
 			}
 		}
 	}
 
 	if showShips {
-		ships, err := fetchShips(swgg)
-		if err != nil {
-			log.Fatal(err)
-		}
-		for _, ship := range ships {
-			if ship.Stars >= starLevel {
-				fmt.Println(ship)
+		for _, u := range player.Roster {
+			if u.Rarity >= starLevel && u.CombatType == swgohhelp.CombatTypeShip {
+				fmt.Println(fmt.Sprintf("%s %d* G%d Lvl%d", u.Name, u.Rarity, u.Gear, u.Level))
 			}
 		}
 	}
 
-	if showMods {
-		mods, err := fetchMods(swgg)
-		if err != nil {
-			log.Fatal(err)
-		}
-		if optimizeStat != "" {
-			set := mods.Optimize(optimizeStat, false)
-			for _, shape := range swgohgg.ShapeNames {
-				mod := set[shape]
-				fmt.Println(mod)
-			}
-			fmt.Println("---")
-			for _, s := range set.StatSummary() {
-				fmt.Println(s)
-			}
-		} else if maxStat != "" {
-			set := mods.SetWith(maxStat)
-			for _, shape := range swgohgg.ShapeNames {
-				mod := set[shape]
-				fmt.Println(mod)
-			}
-			fmt.Println("---")
-			for _, s := range set.StatSummary() {
-				fmt.Println(s)
-			}
-		} else {
-			filter := swgohgg.ModFilter{
-				Char: charFilter,
-			}
-			mods = mods.Filter(filter)
+	/*
+		if showMods {
+			mods, err := fetchMods(swgg)
 			if err != nil {
 				log.Fatal(err)
 			}
-			if shape != "" {
-				mods = mods.ByShape(shape)
-			}
-			for _, mod := range mods {
-				fmt.Println(mod)
+			if optimizeStat != "" {
+				set := mods.Optimize(optimizeStat, false)
+				for _, shape := range swgohgg.ShapeNames {
+					mod := set[shape]
+					fmt.Println(mod)
+				}
+				fmt.Println("---")
+				for _, s := range set.StatSummary() {
+					fmt.Println(s)
+				}
+			} else if maxStat != "" {
+				set := mods.SetWith(maxStat)
+				for _, shape := range swgohgg.ShapeNames {
+					mod := set[shape]
+					fmt.Println(mod)
+				}
+				fmt.Println("---")
+				for _, s := range set.StatSummary() {
+					fmt.Println(s)
+				}
+			} else {
+				filter := swgohgg.ModFilter{
+					Char: charFilter,
+				}
+				mods = mods.Filter(filter)
+				if err != nil {
+					log.Fatal(err)
+				}
+				if shape != "" {
+					mods = mods.ByShape(shape)
+				}
+				for _, mod := range mods {
+					fmt.Println(mod)
+				}
 			}
 		}
-	}
+	*/
 
 	if showArena {
-		team, _, err := swgg.Arena()
-		if err != nil {
-			log.Fatal(err)
-		}
-		for _, char := range team {
-			b, err := yaml.Marshal(char)
-			if err != nil {
-				log.Fatal(err)
+		fmt.Printf("%s's Arena Teams (%s)\n", player.Name, player.Titles.Selected)
+		fmt.Printf("\nCharacter Arena (Ranking %d)\n\n", player.Arena.Char.Rank)
+		for _, unit := range player.Arena.Char.Squad {
+			suffix := ""
+			if unit.Type.String() != "" {
+				suffix = "(" + unit.Type.String() + ")"
 			}
-			fmt.Println(string(b))
+			if char, ok := player.Roster.FindByID(unit.UnitID); ok {
+				fmt.Printf("- %d* %s G%d Lvl%d %v\n", char.Rarity, char.Name, char.Gear, char.Level, suffix)
+			}
+		}
+		fmt.Printf("\nShip Arena (Ranking %d)\n\n", player.Arena.Ship.Rank)
+		for _, unit := range player.Arena.Ship.Squad {
+			if ship, ok := player.Roster.FindByID(unit.UnitID); ok {
+				suffix := ""
+				if unit.Type.String() != "" {
+					suffix = "(" + unit.Type.String() + ")"
+				}
+				fmt.Printf("- %d* %s Lvl%d %v\n", ship.Rarity, ship.Name, ship.Level, suffix)
+			}
 		}
 	}
 }
