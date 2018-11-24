@@ -1,6 +1,8 @@
 package swgohhelp
 
 import (
+	"bytes"
+	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -66,6 +68,19 @@ func (r Roster) FindByName(unitName string) (*Unit, bool) {
 		}
 	}
 	return nil, false
+}
+
+// Mods returns the roster equiped mods
+func (r Roster) Mods() (mods []Mod) {
+	for i := range r {
+		for j := range r[i].Mods {
+			if r[i].Mods[j].UnitEquiped == "" {
+				r[i].Mods[j].UnitEquiped = r[i].Name
+			}
+			mods = append(mods, r[i].Mods[j])
+		}
+	}
+	return
 }
 
 // Unit is a game unit entity, character or ship.
@@ -145,21 +160,36 @@ type UnitSkill struct {
 type Mod struct {
 	ID          string    `json:"id"`
 	Level       int       `json:"level"`
+	Set         ModSet    `json:"set"`
 	Tier        int       `json:"tier"`
-	Slot        int       `json:"slot"`
 	Pips        int       `json:"pips"`
-	Set         int       `json:"set"`
+	Slot        ModSlot   `json:"slot"`
+	UnitEquiped string    `json:"unit_equiped"`
 	Primary     ModStat   `json:"primaryStat"`
 	Secondaries []ModStat `json:"secondaryStat"`
+}
+
+func (m Mod) String() string {
+	var buff bytes.Buffer
+	fmt.Fprintf(&buff, "%d* Lv%d %s %s '%s' ", m.Pips, m.Level, m.Set, m.Slot, m.UnitEquiped)
+	fmt.Fprintf(&buff, "%s ", m.Primary)
+	for _, s := range m.Secondaries {
+		fmt.Fprintf(&buff, "%s", s)
+	}
+	return buff.String()
 }
 
 // ModStat is a single mod stat name and value.
 // Unit is the key name of the modified character stat attribute,
 // and value is always a floating point even when precision is zero.
 type ModStat struct {
-	Unit  int     `json:"unitStat"`
-	Value float64 `json:"value"`
-	Roll  int     `json:"roll"`
+	Unit  ModUnitStat `json:"unitStat"`
+	Value float64     `json:"value"`
+	Roll  int         `json:"roll"`
+}
+
+func (s ModStat) String() string {
+	return fmt.Sprintf("[%.02f %s (%d)]", s.Value, s.Unit, s.Roll)
 }
 
 // UnitEquipment is the unit equiped gear at the current level

@@ -2,9 +2,12 @@ package main
 
 import (
 	"context"
+	"encoding/csv"
 	"flag"
 	"fmt"
 	"log"
+	"os"
+	"strconv"
 
 	"gopkg.in/yaml.v2"
 
@@ -62,6 +65,7 @@ func main() {
 		log.Fatalf("swgoh: error authenticating with API backend: %v", err)
 	}
 
+	// TODO(ronoaldo): implement caching using Bolt DB for player profile lookups
 	players, err := swgoh.Players(allyCode)
 	if err != nil {
 		log.Fatalf("swgoh: error fetching player profile from API: %v", err)
@@ -69,6 +73,7 @@ func main() {
 
 	player := players[0]
 	unitFilter = swgohgg.CharName(unitFilter)
+
 	if showStats {
 		for _, unit := range player.Roster {
 			if unit.Name == unitFilter {
@@ -100,49 +105,30 @@ func main() {
 		}
 	}
 
-	/*
-		if showMods {
-			mods, err := fetchMods(swgg)
-			if err != nil {
-				log.Fatal(err)
+	if showMods {
+		mods := player.Roster.Mods()
+		w := csv.NewWriter(os.Stdout)
+		w.Write([]string{"ID", "Pips", "Level", "Set", "Slot", "Character",
+			"PrimStatVal", "PrimStatName", "SecStatVal1", "SecStatName1", "SecStatVal2", "SecStatName2",
+			"SecStatVal3", "SecStatName3", "SecStatVal4", "SecStatName4"})
+		for _, m := range mods {
+			row := []string{
+				m.ID,
+				strconv.Itoa(m.Pips),
+				strconv.Itoa(m.Level),
+				m.Set.String(),
+				m.Slot.String(),
+				m.UnitEquiped,
+				fmt.Sprintf("%.02f", m.Primary.Value),
+				m.Primary.Unit.String(),
 			}
-			if optimizeStat != "" {
-				set := mods.Optimize(optimizeStat, false)
-				for _, shape := range swgohgg.ShapeNames {
-					mod := set[shape]
-					fmt.Println(mod)
-				}
-				fmt.Println("---")
-				for _, s := range set.StatSummary() {
-					fmt.Println(s)
-				}
-			} else if maxStat != "" {
-				set := mods.SetWith(maxStat)
-				for _, shape := range swgohgg.ShapeNames {
-					mod := set[shape]
-					fmt.Println(mod)
-				}
-				fmt.Println("---")
-				for _, s := range set.StatSummary() {
-					fmt.Println(s)
-				}
-			} else {
-				filter := swgohgg.ModFilter{
-					Char: charFilter,
-				}
-				mods = mods.Filter(filter)
-				if err != nil {
-					log.Fatal(err)
-				}
-				if shape != "" {
-					mods = mods.ByShape(shape)
-				}
-				for _, mod := range mods {
-					fmt.Println(mod)
-				}
+			for _, stat := range m.Secondaries {
+				row = append(row, fmt.Sprintf("%.02f", stat.Value), stat.Unit.String())
 			}
+			w.Write(row)
+			w.Flush()
 		}
-	*/
+	}
 
 	if showArena {
 		fmt.Printf("%s's Arena Teams (%s)\n", player.Name, player.Titles.Selected)

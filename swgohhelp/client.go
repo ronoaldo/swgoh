@@ -28,15 +28,19 @@ type Client struct {
 	endpoint string
 	token    string
 	debug    bool
-	cache    dataCache
+	cache    GameDataCache
 }
 
 // New initializes an instance of Client making it ready to use.
 func New(ctx context.Context) *Client {
-	return &Client{
+	client := &Client{
 		hc:       http.DefaultClient,
 		endpoint: DefaultEndpoint,
 	}
+	if err := client.cache.load(); err != nil {
+		log.Printf("swgohhelp: error loading cache: %v", err)
+	}
+	return client
 }
 
 // SetDebug defines the debug state for the client.

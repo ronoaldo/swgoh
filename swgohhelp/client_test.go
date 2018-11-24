@@ -11,7 +11,7 @@ import (
 var username, password, allyCode string
 
 func init() {
-	flag.StringVar(&username, "username", "", "Username to authenticate to the API")
+	flag.StringVar(&username, "username", "ronoaldo", "Username to authenticate to the API")
 	flag.StringVar(&password, "password", "", "Password to authenticate to the API")
 	flag.StringVar(&allyCode, "ally", "335-983-287", "Ally code to run tests against")
 }
