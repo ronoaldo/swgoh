@@ -20,7 +20,7 @@ import (
 var errNotImplemented = fmt.Errorf("swgohhelp: not implemented")
 
 // DefaultEndpoint is the default target host for API calls
-var DefaultEndpoint = "https://apiv2.swgoh.help"
+var DefaultEndpoint = "https://api.swgoh.help"
 
 // Client implements an authenticated callee to the https://api.swgoh.help service.
 type Client struct {
@@ -28,15 +28,19 @@ type Client struct {
 	endpoint string
 	token    string
 	debug    bool
-	cache    dataCache
+	cache    GameDataCache
 }
 
 // New initializes an instance of Client making it ready to use.
 func New(ctx context.Context) *Client {
-	return &Client{
+	client := &Client{
 		hc:       http.DefaultClient,
 		endpoint: DefaultEndpoint,
 	}
+	if err := client.cache.load(); err != nil {
+		log.Printf("swgohhelp: error loading cache: %v", err)
+	}
+	return client
 }
 
 // SetDebug defines the debug state for the client.
@@ -105,7 +109,7 @@ func (c *Client) Players(allyCodes ...string) (players []Player, err error) {
 	payload, err := json.Marshal(map[string]interface{}{
 		"allycodes": allyCodeNumbers,
 		"language":  "eng_us",
-		"enums":     true,
+		"enums":     false,
 		"project": map[string]int{
 			"id":         1,
 			"allyCode":   1,
@@ -143,6 +147,33 @@ func (c *Client) Players(allyCodes ...string) (players []Player, err error) {
 		for j := range players[i].Titles.Unlocked {
 			titleKey := players[i].Titles.Unlocked[j]
 			players[i].Titles.Unlocked[j] = titles[titleKey].Name
+		}
+	}
+	// Enrich result with related data from Crinolo's stat API
+	url := "https://crinolo-swgoh.glitch.me/statCalc/api/characters/?flags=withModCalc,gameStyle"
+	for i := range players {
+		player := players[i]
+		b, err := json.Marshal(player.Roster)
+		if err != nil {
+			return nil, err
+		}
+		if c.debug {
+			writeLogFile(b, "req", "POST", "_crinoloapi")
+		}
+		resp, err := c.hc.Post(url, "application/json", bytes.NewBuffer(b))
+		if err != nil {
+			return nil, err
+		}
+		b, err = ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return nil, err
+		}
+		if c.debug {
+			writeLogFile(b, "resp", "POST", "_crinoloapi")
+		}
+		err = json.Unmarshal(b, &player.Roster)
+		if err != nil {
+			return nil, err
 		}
 	}
 

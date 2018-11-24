@@ -1,36 +1,57 @@
-# swgoh.gg crawler and CLI tool
+# SWGoH API client and CLI for Go
 
-For Star Wars Galaxy of Heroes players and tech-savvy, tools provided in this repository allows them to crawl and use their data synced to the https://swgoh.gg website.
+This project implements several API clientes as well as a command line interface (CLI)
+for Start Wars Galaxy of Heroes game. Data is retrieved from third party services
+provided by other developers:
 
-## API for Go lang
+* https://swgoh.gg/ and https://swgoh.gg/api/
+* https://api.swgoh.help
 
-A package that crawls and fetches data is available at
+The CLI uses https://api.swgoh.help and the https://crinolo-swgoh.glitch.me/statCalc helper
+to provide rich information about character, ships and mods.
 
-    github.com/ronoaldo/swgoh/swgohgg
+A basic client for https://swgoh.gg/ (website crawling) and https://swgoh.gg/api/
+is also provided but as of now, not extensivelly tested.
 
-If you aim to build a tool that uses the website data, please first ask site authors for their approval. Also, keep in mind that they may pose rate-limit for your requests in order to prevent website overload.
+## API client for Go lang
+
+The API client for the Go programming language is available using the import
+
+    import "github.com/ronoaldo/swgoh/swgohhelp"
+
+Read the full documentation at https://godoc.org/github.com/ronoaldo/swgoh/swgohhelp
 
 ## CLI
 
-You can use this command line interface to parse your characters, ships, and mods. The data is cached as a JSON file that you can parse and use in other apps. The output to stdout can also be used for several purposes, such as feed data into a spreadsheet.
+You can use this command line interface to parse your characters, ships, and mods.
+The data is cached as a JSON file that you can parse and use in other apps.
+The output to stdout can also be used for several purposes, such as feed data
+into a spreadsheet.
 
 ### Install or Download
 
-If you just want to use it, go to the [Release Page](https://github.com/ronoaldo/swgoh/releases) and download the one for your operating system.
+If you just want to use it, go to the
+[Release Page](https://github.com/ronoaldo/swgoh/releases)
+and download the one for your operating system.
 
-You can also install this commands if you have the Go language tools:
+You can also install the tool using the Go toolchain:
 
     go get github.com/ronoaldo/swgoh/cmd/swgoh
 
 To see the full list of available options, run:
 
-    swgoh --help
+    swgoh -help
+
+### Authentication
+
+For each invocation you need to provide the https://api.swgoh.help credentials.
+The parameters `-u "myuser"` and `-p "mypass"` are mandatory.
 
 ### Ships list
 
 To list your ships, you can use the following command:
 
-    swgoh -profile ronoaldo -ships
+    swgoh -u "myuser" -p "mypass" -a "allycode" -ships
 
 The result is a CSV list of your ships, their level, and stars.
 
@@ -38,36 +59,43 @@ The result is a CSV list of your ships, their level, and stars.
 
 To list your characters, you can use the following command:
 
-    swgoh -profile ronoaldo -collection
+    swgoh -u "myuser" -p "mypass" -a "allycode" -characters
 
 The result is a CSV list of your characters, their level, stars, and gear level.
 
-### Mods and Mod Set suggestions
+### Mods
 
-The tool has some experimental mod suggestions and is also capable of exporting your mods into CSV format for you spreadsheet lovers.
+You can use the -mods switch to export all your mods to the standard output
+formatted as CSV:
 
-    swgoh -profile ronoaldo -mods
-
-You can also ask the tool to suggest a set that contains the maximum amount of a given statistic (ignoring bonus sets!)
-
-    swgoh -profile ronoaldo -mods -max-set 'Critical Chance'
-
-Finally, you can ask the tool to optimize a set by trial and error. This is currently a dumb deep search in all possible mod sets and combinations. The algorithm is very simplified, does no optimizations and is *very slow*, but works. Often, max-set is enough but if you want to super maximize a given statistic:
-
-    swgoh -profile ronoaldo -mods -optimize-set 'Critical Chance'
+    swgoh -u "myuser" -p "mypass" -a "allycode" -mods
 
 ### Character and Arena stats
 
-It is possible to display single character or your arena team statistics using the -stats or -arena switches. To display statistics from a single character, type:
+It is possible to display single character or your arena team statistics
+using the -stats or -arena switches.
 
-    swgoh -profile ronoaldo -stats -char Tarkin
+To display statistics from a single character, type:
 
-And to display the current stats of your arena team, use the -arena option:
+    swgoh -u "myuser" -p "mypass" -a "allycode" -stats -char Tarkin
 
-    swgoh -profile ronoaldo -arena
+And to display the current stats of your arena team, use the -arena option.
+Both character and ship arenas will be shown:
 
-### Caching
+    swgoh -u "myuser" -p "mypass" -a "allycode" -arena
 
-Caching is performed in your personal folder, `$HOME` on *nix machines, using a file named `swgoh.*yourprofile*.*mods or roster*.json`.
+# Caching
 
-You can delete these files to update the data from the website. Currently, the cache does not expire, but this can be changed in the future. You can also use the `--cache=false` command line switch to get always fresh data.
+Caching is done for several API consumed files. 
+This serves two pourposes: avoid overloading the API
+endpoints and gives you a local copy of the JSON files
+for your parsing needs.
+
+Cached data is stored in `$HOME/.config/api.swgoh.help/` folder.
+You can change the value using the system variable `$SWGOH_CACHE_DIR`.
+This folder is created if does not exists.
+
+In that folder, a file `gamedata.json` holds cached data for several game
+related info, such as unit names and other info.
+
+The CLI also stores profile data in `ALLYCODE.json` files in the cache directory.

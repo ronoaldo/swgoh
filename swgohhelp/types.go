@@ -1,6 +1,8 @@
 package swgohhelp
 
 import (
+	"bytes"
+	"fmt"
 	"strconv"
 	"strings"
 	"time"
@@ -15,99 +17,205 @@ type AuthResponse struct {
 
 // Player represents the full player profile information.
 type Player struct {
-	Name     string `json:"name,omitempty"`
-	AllyCode int    `json:"allyCode,omitempty"`
-	Level    int    `json:"level,omitempty"`
+	Name     string `json:"name"`
+	AllyCode int    `json:"allyCode"`
+	Level    int    `json:"level"`
 
-	GuildName  string `json:"guildName,omitempty"`
-	GuildRefID string `json:"guildRefId,omitempty"`
+	GuildName  string `json:"guildName"`
+	GuildRefID string `json:"guildRefId"`
 
-	Titles PlayerTitle `json:"titles,omitempty"`
+	Titles PlayerTitle `json:"titles"`
 
-	Stats  []PlayerStat `json:"stats,omitempty"`
-	Roster []Unit       `json:"roster,omitempty"`
+	Stats  []PlayerStat `json:"stats"`
+	Roster Roster       `json:"roster"`
 
-	Arena Arena `json:"arena,omitempty"`
+	Arena Arena `json:"arena"`
 
-	UpdatedAt Timestamp `json:"updated,omitempty"`
+	UpdatedAt Timestamp `json:"updated"`
 }
 
 // PlayerTitle is a list of player unlocked and selected titles.
 type PlayerTitle struct {
-	Selected string   `json:"selected,omitempty"`
-	Unlocked []string `json:"unlocked,omitempty"`
+	Selected string   `json:"selected"`
+	Unlocked []string `json:"unlocked"`
 }
 
 // PlayerStat is a single player profile statistic info, like how many battles won.
 type PlayerStat struct {
-	Name  string `json:"nameKey,omitempty"`
-	Value int64  `json:"value,omitempty"`
-	Index int64  `json:"index,omitempty"`
+	Name  string `json:"nameKey"`
+	Value int64  `json:"value"`
+	Index int64  `json:"index"`
+}
+
+// Roster is a helper collection to manipulate player roster
+type Roster []Unit
+
+// FindByID filter the unit collection by the DefID attribute
+func (r Roster) FindByID(defID string) (*Unit, bool) {
+	for _, unit := range r {
+		if unit.DefID == defID {
+			return &unit, true
+		}
+	}
+	return nil, false
+}
+
+// FindByName filter the unit collection by name attribute
+func (r Roster) FindByName(unitName string) (*Unit, bool) {
+	for _, unit := range r {
+		if unit.Name == unitName {
+			return &unit, true
+		}
+	}
+	return nil, false
+}
+
+// Mods returns the roster equiped mods
+func (r Roster) Mods() (mods []Mod) {
+	for i := range r {
+		for j := range r[i].Mods {
+			if r[i].Mods[j].UnitEquiped == "" {
+				r[i].Mods[j].UnitEquiped = r[i].Name
+			}
+			mods = append(mods, r[i].Mods[j])
+		}
+	}
+	return
 }
 
 // Unit is a game unit entity, character or ship.
 type Unit struct {
-	ID     string `json:"id,omitempty"`
-	DefID  string `json:"defId,omitempty"`
-	Name   string `json:"nameKey,omitempty"`
-	Rarity int    `json:"rarity,omitempty"`
-	Level  int    `json:"level,omitempty"`
-	XP     int    `json:"xp,omitempty"`
-	Gear   int    `json:"gear,omitempty"`
+	ID      string          `json:"id"`
+	DefID   string          `json:"defId"`
+	Name    string          `json:"nameKey"`
+	Rarity  int             `json:"rarity"`
+	Level   int             `json:"level"`
+	XP      int             `json:"xp"`
+	Gear    int             `json:"gear"`
+	Equiped []UnitEquipment `json:"equipped"`
 
-	// Either SHIP or CHARACTER
-	CombatType string `json:"combatType,omitempty"`
+	CombatType CombatType `json:"combatType"`
 
-	Skills []UnitSkill `json:"skills,omitempty"`
-	Mods   []Mod       `json:"mods,omitempty"`
-	Crew   []Unit      `json:"crew,omitempty"`
+	Skills []UnitSkill `json:"skills"`
+	Mods   []Mod       `json:"mods"`
+	Crew   []Unit      `json:"crew"`
+
+	Stats *UnitStats `json:"stats,omitempty"`
+}
+
+// UnitStats unit statis information split by Final and FromMods
+type UnitStats struct {
+	Final    UnitStatItems `json:"final"`
+	FromMods UnitStatItems `json:"mods"`
+}
+
+// UnitStatItems is a set of character statistics such as health, speed, etc.
+type UnitStatItems struct {
+	// Primary attributes
+	Strength int `json:"Strength"`
+	Agility  int `json:"Agility"`
+	Tactics  int `json:"Tactics"`
+
+	// General
+	Health         int     `json:"Health"`
+	Protection     int     `json:"Protection"`
+	Speed          int     `json:"Speed"`
+	CriticalDamage float64 `json:"Critical Damage"`
+	Potency        float64 `json:"Potency"`
+	Tenacity       float64 `json:"Tenacity"`
+	HealthSteal    float64 `json:"Helth Steal"`
+
+	// Physical Offense
+	PhysicalDamage         int     `json:"Physical Damage"`
+	PhysicalCriticalChance float64 `json:"Physical Critical Chance"`
+	ArmorPenetration       int     `json:"Armor Penetration"`
+	PhysicalAccuracy       float64 `json:"Physical Accuracy"`
+
+	// Physical Survivability
+	Armor                     float64 `json:"Armor"`
+	DodgeChance               float64 `json:"Dodge Chance"`
+	PhysicalCriticalAvoidance float64 `json:"Physical Critical Avoidance"`
+
+	// Special Offense
+	SpecialDamage         int     `json:"Special Damage"`
+	SpecialCriticalChance float64 `json:"Special Critical Chance"`
+	ResistancePenetration int     `json:"Resistance Penetration"`
+	SpecialAccuracy       float64 `json:"Special Accuracy"`
+
+	// Special Survivability
+	Resistance               float64 `json:"Resistance"`
+	DeflectionChance         float64 `json:"Deflection Chance"`
+	SpecialCriticalAvoidance float64 `json:"Special Critical Avoidance"`
 }
 
 // UnitSkill is a single unit skill, with level and value
 type UnitSkill struct {
-	ID     string `json:"id,omitempty"`
-	Tier   int    `json:"tier,omitempty"`
-	Name   string `json:"nameKey,omitempty"`
-	IsZeta bool   `json:"isZeta,omitempty"`
+	ID     string `json:"id"`
+	Tier   int    `json:"tier"`
+	Name   string `json:"nameKey"`
+	IsZeta bool   `json:"isZeta"`
 }
 
 // Mod is a character mod detailed value.
 type Mod struct {
-	ID          string    `json:"id,omitempty"`
-	Level       int       `json:"level,omitempty"`
-	Tier        int       `json:"tier,omitempty"`
-	Slot        int       `json:"slot,omitempty"`
-	Pips        int       `json:"pips,omitempty"`
-	Primary     ModStat   `json:"primaryStat,omitempty"`
-	Secondaries []ModStat `json:"secondaryStat,omitempty"`
+	ID          string    `json:"id"`
+	Level       int       `json:"level"`
+	Set         ModSet    `json:"set"`
+	Tier        int       `json:"tier"`
+	Pips        int       `json:"pips"`
+	Slot        ModSlot   `json:"slot"`
+	UnitEquiped string    `json:"unit_equiped"`
+	Primary     ModStat   `json:"primaryStat"`
+	Secondaries []ModStat `json:"secondaryStat"`
+}
+
+func (m Mod) String() string {
+	var buff bytes.Buffer
+	fmt.Fprintf(&buff, "%d* Lv%d %s %s '%s' ", m.Pips, m.Level, m.Set, m.Slot, m.UnitEquiped)
+	fmt.Fprintf(&buff, "%s ", m.Primary)
+	for _, s := range m.Secondaries {
+		fmt.Fprintf(&buff, "%s", s)
+	}
+	return buff.String()
 }
 
 // ModStat is a single mod stat name and value.
 // Unit is the key name of the modified character stat attribute,
 // and value is always a floating point even when precision is zero.
 type ModStat struct {
-	Unit  string  `json:"unitStat,omitempty"`
-	Value float64 `json:"value,omitempty"`
-	Roll  int     `json:"roll,omitempty"`
+	Unit  ModUnitStat `json:"unitStat"`
+	Value float64     `json:"value"`
+	Roll  int         `json:"roll"`
+}
+
+func (s ModStat) String() string {
+	return fmt.Sprintf("%.02f %s (%d)", s.Value, s.Unit, s.Roll)
+}
+
+// UnitEquipment is the unit equiped gear at the current level
+type UnitEquipment struct {
+	EquipmentID string `json:"equipmentId"`
+	Slot        int    `json:"slot"`
+	NameKey     string `json:"nameKey"`
 }
 
 // Arena wraps both arena rankings for the player.
 type Arena struct {
-	Char ArenaRanking `json:"char,omitempty"`
-	Ship ArenaRanking `json:"ship,omitempty"`
+	Char ArenaRanking `json:"char"`
+	Ship ArenaRanking `json:"ship"`
 }
 
 // ArenaRanking holds player arena ranking.
 type ArenaRanking struct {
-	Rank  int         `json:"rank,omitempty"`
-	Squad []SquadUnit `json:"squad,omitempty"`
+	Rank  int         `json:"rank"`
+	Squad []SquadUnit `json:"squad"`
 }
 
 // SquadUnit represents an arena squad unit identifier set.
 type SquadUnit struct {
-	ID     string `json:"id,omitempty"`
-	UnitID string `json:"defId,omitempty"`
-	Type   string `json:"squadUnitType,omitempty"`
+	ID     string        `json:"id"`
+	UnitID string        `json:"defId"`
+	Type   SquadUnitType `json:"squadUnitType"`
 }
 
 // Timestamp is a helper unix timestamp JSON marshaller/unmarshaller.
