@@ -3,34 +3,41 @@ package main
 import (
 	"context"
 	"encoding/csv"
+	"encoding/json"
 	"flag"
 	"fmt"
+	"io"
 	"log"
 	"os"
+	"path"
+	"regexp"
 	"strconv"
-
-	"gopkg.in/yaml.v2"
+	"text/template"
+	"time"
 
 	"github.com/ronoaldo/swgoh/swgohgg"
 	"github.com/ronoaldo/swgoh/swgohhelp"
 )
 
 var (
-	allyCode       string
-	username       string
-	password       string
-	starLevel      int
-	unitFilter     string
-	optimizeStat   string
-	maxStat        string
-	shape          string
+	// Auth
+	allyCode string
+	username string
+	password string
+
+	// Filter
+	starLevel  int
+	unitFilter string
+
+	// Actions
 	showCharacters bool
 	showShips      bool
 	showMods       bool
 	showStats      bool
 	showArena      bool
-	useCache       bool
-	debug          bool
+
+	// Debug
+	debug bool
 )
 
 func init() {
@@ -41,49 +48,53 @@ func init() {
 	// Operation flags
 	flag.BoolVar(&showCharacters, "characters", false, "Show user character collection")
 	flag.BoolVar(&showShips, "ships", false, "Show user ships collection")
-	flag.BoolVar(&showMods, "mods", false, "Show user mods collection")
+	flag.BoolVar(&showMods, "mods", false, "Show user mods collection as a CSV file to standard output")
 	flag.BoolVar(&showStats, "stats", false, "Show a single character stats (requires -char)")
 	flag.BoolVar(&showArena, "arena", false, "Show stats for your current arena team")
 
-	// Cache flags
-	flag.BoolVar(&useCache, "cache", true, "Use cache to save mod query")
+	// Debug info
 	flag.BoolVar(&debug, "debug", false, "Debug request and response to temporary folder")
 
 	// Filter flags
 	flag.IntVar(&starLevel, "stars", 0, "The minimal character or mod `stars` to display")
-	flag.StringVar(&unitFilter, "unit", "", "Restrict mods used by this `character`")
-	flag.StringVar(&optimizeStat, "optimize-set", "", "Build a set optimized with this `stat` looking up for all combinations")
-	flag.StringVar(&maxStat, "max-set", "", "Suggest a set that has the provided `stat` best values")
-	flag.StringVar(&shape, "shape", "", "Filter mods by this `shape`")
+	flag.StringVar(&unitFilter, "unit", "", "Restrict mods used by this `character` or `ship`")
 }
 
 func main() {
 	flag.Parse()
 	ctx := context.Background()
+
+	// Authenticate
 	swgoh := swgohhelp.New(ctx).SetDebug(debug)
 	if _, err := swgoh.SignIn(username, password); err != nil {
 		log.Fatalf("swgoh: error authenticating with API backend: %v", err)
 	}
 
-	// TODO(ronoaldo): implement caching using Bolt DB for player profile lookups
-	players, err := swgoh.Players(allyCode)
+	// Load player (use cache if possible)
+	player, err := loadPlayerProfile(swgoh)
 	if err != nil {
 		log.Fatalf("swgoh: error fetching player profile from API: %v", err)
 	}
 
-	player := players[0]
 	unitFilter = swgohgg.CharName(unitFilter)
 
 	if showStats {
 		for _, unit := range player.Roster {
 			if unit.Name == unitFilter {
-				// Unit found dump stats
-				b, err := yaml.Marshal(unit)
-				if err != nil {
-					log.Fatal(err)
+				s := unit.Stats.Final
+				m := unit.Stats.FromMods
+
+				fn := template.FuncMap{
+					"perc": func(val float64) string {
+						return fmt.Sprintf("%.2f", val*100)
+					},
 				}
-				fmt.Printf("Stats for %s's '%s':\n", player.Name, unitFilter)
-				fmt.Println(string(b))
+				t := template.Must(template.New("unitTemplate").Funcs(fn).Parse(unitTemplate))
+				t.Execute(os.Stdout, map[string]interface{}{
+					"s":    s,
+					"m":    m,
+					"unit": unit,
+				})
 				break
 			}
 		}
@@ -154,3 +165,106 @@ func main() {
 		}
 	}
 }
+
+var cleanAllyRegexp = regexp.MustCompile("[^0-9]+")
+
+func openCacheFile() (*os.File, error) {
+	cacheDir, err := swgohhelp.CacheDirectory()
+	if err != nil {
+		return nil, fmt.Errorf("unable to use cache: %v", err)
+	}
+
+	allyCode := cleanAllyRegexp.ReplaceAllString(allyCode, "")
+	cacheFile := path.Join(cacheDir, fmt.Sprintf("%s.json", allyCode))
+
+	fd, err := os.OpenFile(cacheFile, os.O_CREATE|os.O_RDWR, 0644)
+	if err != nil {
+		return nil, fmt.Errorf("error opening cache file: %v", err)
+	}
+	info, err := fd.Stat()
+	if err != nil {
+		return nil, fmt.Errorf("error checking cache file mtime: %v", err)
+	}
+	if time.Since(info.ModTime()) > 24*time.Hour {
+		return nil, fmt.Errorf("cache is too old (%v) ignoring it", info.ModTime())
+	}
+	return fd, nil
+}
+
+func loadPlayerProfile(swgoh *swgohhelp.Client) (player *swgohhelp.Player, err error) {
+	cache, err := openCacheFile()
+	if cache != nil {
+		defer cache.Close()
+	}
+
+	// Cache file was available, let's try to load it
+	if err == nil {
+		player := new(swgohhelp.Player)
+		if err = json.NewDecoder(cache).Decode(player); err == nil {
+			return player, nil
+		}
+	}
+	if err != io.EOF {
+		log.Printf("swgoh: error decoding player profile: %v", err)
+	}
+
+	players, err := swgoh.Players(allyCode)
+	if err != nil {
+		return nil, err
+	}
+	player = &players[0]
+
+	// Try to save cache if possible
+	if cache != nil {
+		enc := json.NewEncoder(cache)
+		enc.SetIndent("", " ")
+		if err = enc.Encode(player); err != nil {
+			log.Printf("swgoh: unable to save cache: %v", err)
+		}
+	}
+	return player, nil
+}
+
+var unitTemplate = `{{.unit.Rarity}}* Lvl{{.unit.Level}} G{{.unit.Gear}} {{.unit.Name}}
+
+Primary Attributes
+- Strength: {{.s.Strength}}
+- Agility: {{.s.Agility}}
+- Tactics: {{.s.Tactics}}
+
+General
+- Health: {{.s.Health}} ({{.m.Health}})
+- Protection: {{.s.Protection}} ({{.m.Protection}})
+- Speed: {{.s.Speed}} ({{.m.Speed}})
+- Critical Damage: {{perc .s.CriticalDamage}} ({{perc .m.CriticalDamage}})
+- Potency: {{perc .s.Potency}} ({{perc .m.Potency}})
+- Tenacity: {{perc .s.Tenacity}} ({{perc .m.Tenacity}})
+
+Physical Offense
+- Physical Damage: {{.s.PhysicalDamage}} ({{.m.PhysicalDamage}})
+- Physical Critical Chance: {{perc .s.PhysicalCriticalChance}} ({{perc .m.PhysicalCriticalChance}})
+- Armor Penetration: {{.s.ArmorPenetration}}
+- Physical Accuracy: {{.s.PhysicalAccuracy}} ({{.m.PhysicalAccuracy}})
+
+Physical Survivability
+- Armor: {{perc .s.Armor}} ({{perc .m.Armor}})
+- Dodge Chance: {{perc .s.DodgeChance}} ({{perc .m.DodgeChance}})
+- Physical Critical Avoidance: {{perc .s.PhysicalCriticalAvoidance}} ({{perc .m.PhysicalCriticalAvoidance}})
+
+Special Offense
+- Special Damage: {{.s.SpecialDamage}} ({{.m.SpecialDamage}})
+- Special Critical Chance: {{perc .s.SpecialCriticalChance}} ({{perc .m.SpecialCriticalChance}})
+- Resistance Penetration: {{.s.ResistancePenetration}} ({{.m.ResistancePenetration}})
+- Special Accuracy: {{.s.SpecialAccuracy}} ({{.m.SpecialAccuracy}})
+
+Special Survavibility
+- Resistance: {{perc .s.Resistance}} ({{perc .m.Resistance}})
+- Deflection Chance: {{.s.DeflectionChance}} ({{.m.DeflectionChance}})
+- Special Critical Avoidance: {{.s.SpecialCriticalAvoidance}} ({{.m.SpecialCriticalAvoidance}})
+
+Mods
+{{range .unit.Mods }}[{{.Slot}}] {{.Pips}}* Lvl{{.Level}} {{.Set}} set
+- {{.Primary}}
+{{range .Secondaries }}- {{.}}
+{{end}}{{end}}
+`

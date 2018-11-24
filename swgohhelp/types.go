@@ -114,7 +114,7 @@ type UnitStatItems struct {
 	// Primary attributes
 	Strength int `json:"Strength"`
 	Agility  int `json:"Agility"`
-	Tactics  int `json:"Inteligence"`
+	Tactics  int `json:"Tactics"`
 
 	// General
 	Health         int     `json:"Health"`
@@ -189,7 +189,7 @@ type ModStat struct {
 }
 
 func (s ModStat) String() string {
-	return fmt.Sprintf("[%.02f %s (%d)]", s.Value, s.Unit, s.Roll)
+	return fmt.Sprintf("%.02f %s (%d)", s.Value, s.Unit, s.Roll)
 }
 
 // UnitEquipment is the unit equiped gear at the current level
