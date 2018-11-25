@@ -1,7 +1,7 @@
 # SWGoH API client and CLI for Go
 
-This project implements several API clientes as well as a command line interface (CLI)
-for Start Wars Galaxy of Heroes game. Data is retrieved from third party services
+This project implements API client and command line interface (CLI)
+for Star Wars Galaxy of Heroes game. Data is retrieved from third party services
 provided by other developers:
 
 * https://swgoh.gg/ and https://swgoh.gg/api/
@@ -11,7 +11,7 @@ The CLI uses https://api.swgoh.help and the https://crinolo-swgoh.glitch.me/stat
 to provide rich information about character, ships and mods.
 
 A basic client for https://swgoh.gg/ (website crawling) and https://swgoh.gg/api/
-is also provided but as of now, not extensivelly tested.
+is also provided. as of now this implementation is not extensivelly tested.
 
 ## API client for Go lang
 
