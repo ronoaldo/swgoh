@@ -63,7 +63,7 @@ func (r Roster) FindByID(defID string) (*Unit, bool) {
 // FindByName filter the unit collection by name attribute
 func (r Roster) FindByName(unitName string) (*Unit, bool) {
 	for _, unit := range r {
-		if unit.Name == unitName {
+		if strings.ToLower(unit.Name) == strings.ToLower(unitName) {
 			return &unit, true
 		}
 	}

@@ -12,6 +12,9 @@ import (
 // If authorized, attempts to fetch more information from character stats
 func (c *Client) Arena() (team []*CharacterStats, lastUpdate time.Time, err error) {
 	url := fmt.Sprintf("https://swgoh.gg/u/%s/", c.shortLink)
+	if c.allyCode != "" {
+		url = fmt.Sprintf("https://swgoh.gg/p/%s/", c.allyCode)
+	}
 	doc, err := c.Get(url)
 	if err != nil {
 		return

@@ -28,4 +28,9 @@ func TestArena(t *testing.T) {
 	if update.IsZero() {
 		t.Errorf("Zero last update timstamp.")
 	}
+
+	_, _, err = gg.Profile("").SetAllyCode("335983287").Arena()
+	if err != nil {
+		t.Errorf("Calling API with only allyCode fails! (err=%v)", err)
+	}
 }
