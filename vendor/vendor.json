@@ -27,6 +27,12 @@
 			"revisionTime": "2016-08-13T22:13:03Z"
 		},
 		{
+			"checksumSHA1": "QsE27lDPDYV0wY9WFEpWS+K4Yv0=",
+			"path": "go.etcd.io/bbolt",
+			"revision": "22d122a8b910d84574434fa23dce0cf8c9e76979",
+			"revisionTime": "2018-12-08T01:02:42Z"
+		},
+		{
 			"checksumSHA1": "2t6c6F2y4b/PEV04TOHpQxh/xLc=",
 			"path": "golang.org/x/net/html",
 			"revision": "42fe2e1c20de1054d3d30f82cc9fb5b41e2e3767",

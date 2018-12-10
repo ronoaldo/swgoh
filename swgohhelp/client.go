@@ -15,6 +15,8 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+
+	"github.com/ronoaldo/swgoh/cache"
 )
 
 var errNotImplemented = fmt.Errorf("swgohhelp: not implemented")
@@ -28,7 +30,8 @@ type Client struct {
 	endpoint string
 	token    string
 	debug    bool
-	cache    GameDataCache
+	gameData cache.Cache
+	players  cache.Cache
 }
 
 // New initializes an instance of Client making it ready to use.
@@ -37,9 +40,12 @@ func New(ctx context.Context) *Client {
 		hc:       http.DefaultClient,
 		endpoint: DefaultEndpoint,
 	}
-	if err := client.cache.load(); err != nil {
-		log.Printf("swgohhelp: error loading cache: %v", err)
+	cacheDir, err := cacheDirectory()
+	if err != nil {
+		log.Printf("swgohhelp: error loading cache directory: %v", err)
 	}
+	client.gameData = cache.NewCache(path.Join(cacheDir, GameDataCacheFile), GameDataCacheExpiration)
+	client.players = cache.NewCache(path.Join(cacheDir, PlayerCacheFile), PlayerCacheExpiration)
 	return client
 }
 
@@ -106,8 +112,24 @@ func (c *Client) Players(allyCodes ...string) (players []Player, err error) {
 	if err != nil {
 		return nil, fmt.Errorf("swgohhelp: error parsing ally codes: %v", err)
 	}
+	// Check if we have some of them in cache first
+	missingFromCache := make([]int, 0, len(allyCodeNumbers))
+	for _, ally := range allyCodeNumbers {
+		if b, ok := c.players.Get(strconv.Itoa(ally)); ok {
+			var player Player
+			if err := json.Unmarshal(b, &player); err == nil {
+				// Use cached data for that player
+				players = append(players, player)
+				continue
+			}
+		}
+		missingFromCache = append(missingFromCache, ally)
+	}
+	if len(missingFromCache) == 0 {
+		return players, nil
+	}
 	payload, err := json.Marshal(map[string]interface{}{
-		"allycodes": allyCodeNumbers,
+		"allycodes": missingFromCache,
 		"language":  "eng_us",
 		"enums":     false,
 		"project": map[string]int{
@@ -174,6 +196,14 @@ func (c *Client) Players(allyCodes ...string) (players []Player, err error) {
 		err = json.Unmarshal(b, &player.Roster)
 		if err != nil {
 			return nil, err
+		}
+	}
+
+	// Save players missing form cache
+	for i := range players {
+		player := players[i]
+		if b, err := json.Marshal(&player); err == nil {
+			c.players.Put(strconv.Itoa(player.AllyCode), b)
 		}
 	}
 

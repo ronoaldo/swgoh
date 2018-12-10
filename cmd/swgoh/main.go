@@ -3,17 +3,13 @@ package main
 import (
 	"context"
 	"encoding/csv"
-	"encoding/json"
 	"flag"
 	"fmt"
-	"io"
 	"log"
 	"os"
-	"path"
 	"regexp"
 	"strconv"
 	"text/template"
-	"time"
 
 	"github.com/ronoaldo/swgoh/swgohgg"
 	"github.com/ronoaldo/swgoh/swgohhelp"
@@ -70,12 +66,15 @@ func main() {
 		log.Fatalf("swgoh: error authenticating with API backend: %v", err)
 	}
 
-	// Load player (use cache if possible)
-	player, err := loadPlayerProfile(swgoh)
+	players, err := swgoh.Players(allyCode)
 	if err != nil {
-		log.Fatalf("swgoh: error fetching player profile from API: %v", err)
+		log.Fatalf("swgoh: error loading player profile: %v", err)
+	}
+	if len(players) == 0 {
+		log.Fatalf("swgoh: no players found for ally code %v", allyCode)
 	}
 
+	player := players[0]
 	unitFilter = swgohgg.CharName(unitFilter)
 
 	if showStats {
@@ -167,63 +166,6 @@ func main() {
 }
 
 var cleanAllyRegexp = regexp.MustCompile("[^0-9]+")
-
-func openCacheFile() (*os.File, error) {
-	cacheDir, err := swgohhelp.CacheDirectory()
-	if err != nil {
-		return nil, fmt.Errorf("unable to use cache: %v", err)
-	}
-
-	allyCode := cleanAllyRegexp.ReplaceAllString(allyCode, "")
-	cacheFile := path.Join(cacheDir, fmt.Sprintf("%s.json", allyCode))
-
-	fd, err := os.OpenFile(cacheFile, os.O_CREATE|os.O_RDWR, 0644)
-	if err != nil {
-		return nil, fmt.Errorf("error opening cache file: %v", err)
-	}
-	info, err := fd.Stat()
-	if err != nil {
-		return nil, fmt.Errorf("error checking cache file mtime: %v", err)
-	}
-	if time.Since(info.ModTime()) > 24*time.Hour {
-		return nil, fmt.Errorf("cache is too old (%v) ignoring it", info.ModTime())
-	}
-	return fd, nil
-}
-
-func loadPlayerProfile(swgoh *swgohhelp.Client) (player *swgohhelp.Player, err error) {
-	cache, err := openCacheFile()
-	if cache != nil {
-		defer cache.Close()
-	}
-
-	// Cache file was available, let's try to load it
-	if err == nil {
-		player := new(swgohhelp.Player)
-		if err = json.NewDecoder(cache).Decode(player); err == nil {
-			return player, nil
-		}
-	}
-	if err != io.EOF {
-		log.Printf("swgoh: error decoding player profile: %v", err)
-	}
-
-	players, err := swgoh.Players(allyCode)
-	if err != nil {
-		return nil, err
-	}
-	player = &players[0]
-
-	// Try to save cache if possible
-	if cache != nil {
-		enc := json.NewEncoder(cache)
-		enc.SetIndent("", " ")
-		if err = enc.Encode(player); err != nil {
-			log.Printf("swgoh: unable to save cache: %v", err)
-		}
-	}
-	return player, nil
-}
 
 var unitTemplate = `{{.unit.Rarity}}* Lvl{{.unit.Level}} G{{.unit.Gear}} {{.unit.Name}}
 
