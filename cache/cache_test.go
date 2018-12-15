@@ -18,31 +18,33 @@ func TestBasicCacheOperations(t *testing.T) {
 	value := "my-value"
 
 	c := NewCache(file.Name(), time.Second)
-	v, ok := c.Get(key)
+	var result string
+	ok := c.Get(key, &result)
 	if ok {
 		t.Errorf("Unexpected positive return from Get call to non-existing key!")
 	}
-	if v != nil {
-		t.Errorf("Expected nil return for non-existing key, got '%v'", v)
+	if result != "" {
+		t.Errorf("Expected nil return for non-existing key, got '%v'", result)
 	}
 
-	c.Put(key, []byte(value))
-	v, ok = c.Get(key)
-	t.Logf("Result: %v, %v", string(v), ok)
+	c.Put(key, value)
+	ok = c.Get(key, &result)
+	t.Logf("Result: %v, %v", result, ok)
 	if !ok {
-		t.Errorf("Expected to get cached value after saving, got %v, %v", v, ok)
+		t.Errorf("Expected to get cached value after saving, got %v, %v", result, ok)
 	} else {
-		if value != string(v) {
-			t.Errorf("Excpected to have the same value from Get: %v != %v", string(value), v)
+		if value != result {
+			t.Errorf("Excpected to have the same value from Get: %v != %v", value, result)
 		}
 	}
 
+	result = ""
 	time.Sleep(time.Second)
-	v, ok = c.Get(key)
+	ok = c.Get(key, result)
 	if ok {
 		t.Errorf("Expected expired item to not return true for Get")
 	}
-	if v != nil {
-		t.Errorf("Unexpected result from %v: ", v)
+	if result != "" {
+		t.Errorf("Unexpected result from %v: ", result)
 	}
 }

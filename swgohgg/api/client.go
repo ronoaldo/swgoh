@@ -50,7 +50,7 @@ func (c *Client) get(path string, args ...interface{}) (resp *http.Response, err
 	}
 
 	if resp.StatusCode < 200 || resp.StatusCode > 299 {
-		return nil, fmt.Errorf("swgohggapi: unexpected stauts code calling %s: %d %s", url, resp.StatusCode, resp.Status)
+		return nil, fmt.Errorf("swgohggapi: unexpected status code calling %s: %d %s", url, resp.StatusCode, resp.Status)
 	}
 
 	if c.debug {

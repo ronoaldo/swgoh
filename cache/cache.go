@@ -3,6 +3,7 @@ package cache
 import (
 	"bytes"
 	"encoding/gob"
+	"encoding/json"
 	"log"
 	"sync"
 	"time"
@@ -16,16 +17,10 @@ var defaultCacheExpiration = 60 * time.Second
 type Cache interface {
 	// Get retrieves the value from cache. Returns the value if found and true,
 	// or a nil array and false if not cached.
-	Get(key string) (value []byte, ok bool)
-
-	// GetString is like Get, but returns a string value.
-	GetString(key string) (value string, ok bool)
+	Get(key string, value interface{}) (ok bool)
 
 	// Put attempts to save the value in cache.
-	Put(key string, value []byte)
-
-	// PutString is like Put, but stores a string value.
-	PutString(key, value string)
+	Put(key string, value interface{})
 }
 
 // Item represents a cached item value
@@ -92,7 +87,7 @@ type fileCache struct {
 
 var defaultBucket = []byte("swgoh")
 
-func (f *fileCache) Get(key string) (value []byte, ok bool) {
+func (f *fileCache) Get(key string, dst interface{}) (ok bool) {
 	f.db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket(defaultBucket)
 		v := b.Get([]byte(key))
@@ -103,24 +98,32 @@ func (f *fileCache) Get(key string) (value []byte, ok bool) {
 			}
 			// If item is expired, ignore it
 			if time.Since(i.Timestamp) < f.expiration {
-				value = append(value, i.Value...)
+				if len(i.Value) > 0 {
+					if err := json.Unmarshal(i.Value, dst); err == nil {
+						ok = true
+					}
+				}
 			}
 		}
 		return nil
 	})
-	return value, value != nil
+	return ok
 }
 
 func (f *fileCache) GetString(key string) (value string, ok bool) {
-	v, ok := f.Get(key)
+	ok = f.Get(key, &value)
 	if ok {
-		return string(v), true
+		return value, true
 	}
 	return "", false
 }
 
-func (f *fileCache) Put(key string, value []byte) {
-	err := f.db.Update(func(tx *bolt.Tx) error {
+func (f *fileCache) Put(key string, src interface{}) {
+	value, err := json.Marshal(src)
+	if err != nil {
+		log.Printf("cache: unable to serialize value to cache '%v'", value)
+	}
+	err = f.db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket(defaultBucket)
 		i := &Item{Value: value, Timestamp: time.Now()}
 		v, err := i.encode()
@@ -135,14 +138,14 @@ func (f *fileCache) Put(key string, value []byte) {
 }
 
 func (f *fileCache) PutString(key, value string) {
-	f.Put(key, []byte(value))
+	f.Put(key, value)
 }
 
 // noopCache implements a void cache that does not fail to execute but also
 // keeps no values in memory or disk.
 type noopCache struct{}
 
-func (n *noopCache) Get(key string) (value []byte, ok bool)       { return nil, false }
+func (n *noopCache) Get(key string, dst interface{}) (ok bool)    { return false }
 func (n *noopCache) GetString(key string) (value string, ok bool) { return "", false }
-func (n *noopCache) Put(key string, value []byte)                 {}
+func (n *noopCache) Put(key string, src interface{})              {}
 func (n *noopCache) PutString(key, value string)                  {}

@@ -17,8 +17,7 @@ type DataPlayerTitle struct {
 // DataPlayerTitles retrieves the data collection for player titles.
 func (c *Client) DataPlayerTitles() (result map[string]DataPlayerTitle, err error) {
 	cacheKey := "data.playerTitles"
-	if b, ok := c.gameData.Get(cacheKey); ok {
-		err = json.Unmarshal(b, &result)
+	if ok := c.gameData.Get(cacheKey, &result); ok {
 		return result, err
 	}
 	// Prepare data collection call
@@ -50,10 +49,8 @@ func (c *Client) DataPlayerTitles() (result map[string]DataPlayerTitle, err erro
 		result[values[i].ID] = values[i]
 	}
 	// Cache prepared response map
-	if b, err := json.Marshal(result); err == nil {
-		c.gameData.Put(cacheKey, b)
-		log.Printf("swgohhelp: saving cache for updated titles")
-	}
+	c.gameData.Put(cacheKey, &result)
+	log.Printf("swgohhelp: saving cache for updated titles")
 	return
 }
 
@@ -67,8 +64,7 @@ type DataUnitAbility struct {
 // DataUnitAbilities returns a map of ability IDs to their descriptions.
 func (c *Client) DataUnitAbilities() (result map[string]DataUnitAbility, err error) {
 	cacheKey := "data.unitAbilities"
-	if b, ok := c.gameData.Get(cacheKey); ok {
-		err = json.Unmarshal(b, &result)
+	if ok := c.gameData.Get(cacheKey, &result); ok {
 		return result, err
 	}
 	// Prepare data collection call
@@ -106,10 +102,8 @@ func (c *Client) DataUnitAbilities() (result map[string]DataUnitAbility, err err
 	for i := range values {
 		result[values[i].ID] = values[i]
 	}
-	if b, err := json.Marshal(result); err == nil {
-		c.gameData.Put(cacheKey, b)
-		log.Printf("swgohhelp: saving cache for updated abilities")
-	}
+	log.Printf("swgohhelp: saving cache for updated abilities")
+	c.gameData.Put(cacheKey, &result)
 	return
 }
 
@@ -124,9 +118,8 @@ type DataUnitSkill struct {
 // DataUnitSkills returns a map of skill IDs to their ability IDs.
 func (c *Client) DataUnitSkills() (result map[string]DataUnitSkill, err error) {
 	cacheKey := "data.unitSkills"
-	if b, ok := c.gameData.Get(cacheKey); ok {
-		err = json.Unmarshal(b, &result)
-		return result, err
+	if ok := c.gameData.Get(cacheKey, &result); ok {
+		return result, nil
 	}
 	// Prepare data collection call
 	payload, err := json.Marshal(map[string]interface{}{
@@ -157,10 +150,8 @@ func (c *Client) DataUnitSkills() (result map[string]DataUnitSkill, err error) {
 	for i := range values {
 		result[values[i].ID] = values[i]
 	}
-	if b, err := json.Marshal(&result); err == nil {
-		c.gameData.Put(cacheKey, b)
-		log.Printf("swgohhelp: saving cache for updated skils")
-	}
+	log.Printf("swgohhelp: saving cache for updated skils")
+	c.gameData.Put(cacheKey, &result)
 	return
 }
 
@@ -174,9 +165,8 @@ type DataUnitCategory struct {
 // DataUnitCategories returns a map of category IDs to their descriptions.
 func (c *Client) DataUnitCategories() (result map[string]DataUnitCategory, err error) {
 	cacheKey := "data.unitCategories"
-	if b, ok := c.gameData.Get(cacheKey); ok {
-		err = json.Unmarshal(b, &result)
-		return result, err
+	if ok := c.gameData.Get(cacheKey, &result); ok {
+		return result, nil
 	}
 	// Prepare data collection call
 	payload, err := json.Marshal(map[string]interface{}{
@@ -210,10 +200,8 @@ func (c *Client) DataUnitCategories() (result map[string]DataUnitCategory, err e
 	for i := range values {
 		result[values[i].ID] = values[i]
 	}
-	if b, err := json.Marshal(&result); err == nil {
-		c.gameData.Put(cacheKey, b)
-		log.Printf("swgohhelp: saving cache for updated categories")
-	}
+	log.Printf("swgohhelp: saving cache for updated categoryList")
+	c.gameData.Put(cacheKey, &result)
 	return
 }
 
@@ -243,8 +231,7 @@ type DataUnitSkillList struct {
 // DataUnits returns a map of unit IDs to their details in game.
 func (c *Client) DataUnits() (result map[string]DataUnit, err error) {
 	cacheKey := "data.units"
-	if b, ok := c.gameData.Get(cacheKey); ok {
-		err = json.Unmarshal(b, &result)
+	if ok := c.gameData.Get(cacheKey, &result); ok {
 		return result, err
 	}
 	// Prepare data collection call
@@ -332,9 +319,7 @@ func (c *Client) DataUnits() (result map[string]DataUnit, err error) {
 		}
 		result[values[i].ID] = values[i]
 	}
-	if b, err := json.Marshal(&result); err == nil {
-		c.gameData.Put(cacheKey, b)
-		log.Printf("swgohhelp: saving cache for updated units")
-	}
+	log.Printf("swgohhelp: saving cache for updated unitList")
+	c.gameData.Put(cacheKey, &result)
 	return
 }

@@ -84,7 +84,7 @@ func (c *Client) call(method, urlPath, contentType string, body io.Reader, args 
 	}
 
 	if resp.StatusCode < 200 || resp.StatusCode > 299 {
-		return nil, fmt.Errorf("swgohhelp: unexpected stauts code calling %s: %d %s", url, resp.StatusCode, resp.Status)
+		return nil, fmt.Errorf("swgohhelp: unexpected status code calling %s: %d %s", url, resp.StatusCode, resp.Status)
 	}
 
 	return resp, nil
@@ -115,13 +115,10 @@ func (c *Client) Players(allyCodes ...string) (players []Player, err error) {
 	// Check if we have some of them in cache first
 	missingFromCache := make([]int, 0, len(allyCodeNumbers))
 	for _, ally := range allyCodeNumbers {
-		if b, ok := c.players.Get(strconv.Itoa(ally)); ok {
-			var player Player
-			if err := json.Unmarshal(b, &player); err == nil {
-				// Use cached data for that player
-				players = append(players, player)
-				continue
-			}
+		var player Player
+		if ok := c.players.Get(strconv.Itoa(ally), &player); ok {
+			players = append(players, player)
+			continue
 		}
 		missingFromCache = append(missingFromCache, ally)
 	}
@@ -202,9 +199,8 @@ func (c *Client) Players(allyCodes ...string) (players []Player, err error) {
 	// Save players missing form cache
 	for i := range players {
 		player := players[i]
-		if b, err := json.Marshal(&player); err == nil {
-			c.players.Put(strconv.Itoa(player.AllyCode), b)
-		}
+		c.players.Put(strconv.Itoa(player.AllyCode), &player)
+		log.Printf("swgohhelp: saving player %v in cache ...", player.AllyCode)
 	}
 
 	return players, nil
