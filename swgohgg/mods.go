@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/ronoaldo/swgoh"
 )
 
 // Mod represents a player mod with all mod information.
@@ -192,7 +193,7 @@ func (f *ModFilter) Match(mod *Mod) bool {
 	if f.Char == "" {
 		return true
 	}
-	return CharSlug(CharName(f.Char)) == CharSlug(mod.UsingIn)
+	return CharSlug(swgoh.CharName(f.Char)) == CharSlug(mod.UsingIn)
 }
 
 // ModCollection is a slice of mods with extra methods for manipulation.

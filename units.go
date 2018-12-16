@@ -1,4 +1,4 @@
-package swgohgg
+package swgoh
 
 import (
 	"strings"
@@ -17,10 +17,16 @@ func CharName(src string) string {
 		return "Ahsoka Tano"
 	case "ahsoka tano fulcrum", "fulcrum", "atf":
 		return "Ahsoka Tano (Fulcrum)"
-	case "asaj", "asajj", "ventres", "ventress", "asajj ventress":
+	case "av", "asaj", "asajj", "assajj", "ventres", "ventress", "asajj ventress":
 		return "Asajj Ventress"
+	case "holdo":
+		return "Amilyn Holdo"
 	case "b2", "b2 battle droid", "b2 super battle droid":
 		return "B2 Super Battle Droid"
+	case "bastila", "bastilla":
+		return "Bastila Shan"
+	case "bastila fallen", "fallen bastila":
+		return "Bastila Shan (Fallen)"
 	case "barris", "baris", "barriss", "offee", "zarris", "barriss offee", "barris offee", "bariss offee", "baris offee":
 		return "Barriss Offee"
 	case "baze", "baze malbus":
@@ -35,8 +41,14 @@ func CharName(src string) string {
 		return "Bodhi Rook"
 	case "boba", "boba fett":
 		return "Boba Fett"
+	case "c3po", "3po":
+		return "C-3PO"
 	case "bane", "cad", "cad bane":
 		return "Cad Bane"
+	case "canderous", "ordo":
+		return "Canderous Ordo"
+	case "carth", "onasi":
+		return "Carth Onasi"
 	case "chs", "cholo", "captain han", "captain han solo":
 		return "Captain Han Solo"
 	case "phasma", "captain phasma":
@@ -77,8 +89,12 @@ func CharName(src string) string {
 		return "Darth Maul"
 	case "dn", "nihilus", "znihilus", "darth nihilis":
 		return "Darth Nihilus"
+	case "sion":
+		return "Darth Sion"
 	case "sidious", "zsidious", "darth sidious", "zidious":
 		return "Darth Sidious"
+	case "traya":
+		return "Darth Traya"
 	case "vader", "zader", "zvader", "darth vader":
 		return "Darth Vader"
 	case "datcha":
@@ -89,6 +105,8 @@ func CharName(src string) string {
 		return "dengar"
 	case "dk", "director", "director krennic", "krennic":
 		return "Director Krennic"
+	case "enfys", "nest", "nasty", "nesty":
+		return "Enfys Nest"
 	case "eeth", "eth", "ek", "eeth koth":
 		return "Eeth Koth"
 	case "palpatine", "emperor", "ep", "ip", "emperor palpatine":
@@ -101,7 +119,7 @@ func CharName(src string) string {
 		return "Ezra Bridger"
 	case "finn", "zinn":
 		return "Finn"
-	case "foe", "executioner", "panda", "death panda":
+	case "fox", "foe", "executioner", "panda", "death panda":
 		return "First Order Executioner"
 	case "foo", "fo officer", "first order officer":
 		return "First Order Officer"
@@ -109,6 +127,8 @@ func CharName(src string) string {
 		return "First Order Stormtrooper"
 	case "fotp", "fo tie", "fo pilot", "fo tie pilot", "first order pilot", "first order tie", "first order tie pilot":
 		return "First Order TIE Pilot"
+	case "fosf", "fosftp", "sftp", "sf tie pilot":
+		return "First Order SF TIE Pilot"
 	case "gamorrean", "guard", "pig", "gamorrean guard", "pig guard":
 		return "Gamorrean Guard"
 	case "gar", "saxon", "gar saxon":
@@ -137,7 +157,7 @@ func CharName(src string) string {
 		return "Han Solo"
 	case "hera", "hera syndulla":
 		return "Hera Syndulla"
-	case "hy", "hermit", "hermit yoda":
+	case "hy", "hermit", "hermit yoda", "hoda":
 		return "Hermit Yoda"
 	case "hk", "hk47", "hk-47":
 		return "HK-47"
@@ -163,6 +183,10 @@ func CharName(src string) string {
 		return "Jawa Engineer"
 	case "js", "scavenger", "jawa scavenger":
 		return "Jawa Scavenger"
+	case "jedi revan", "jkr", "revan":
+		return "Jedi Knight Revan"
+	case "jolee", "jole", "bindo":
+		return "Jolee Bindo"
 	case "consul", "jc", "cj", "consular", "jedi consular":
 		return "Jedi Consular"
 	case "jka", "anakin", "jedi knight anakin":
@@ -179,7 +203,7 @@ func CharName(src string) string {
 		return "Kit Fisto"
 	case "kylo", "ren", "zylo", "kylo ren":
 		return "Kylo Ren"
-	case "kru":
+	case "kru", "unmasked kylo", "kylo unmasked", "kylo ren unmasked":
 		return "Kylo Ren (Unmasked)"
 	case "lando", "calrissian", "lando calrissian":
 		return "Lando Calrissian"
@@ -195,6 +219,8 @@ func CharName(src string) string {
 		return "Mace Windu"
 	case "magma", "magmatrooper", "magma trooper":
 		return "Magmatrooper"
+	case "mission", "vao":
+		return "Mission Vao"
 	case "mob", "enforcer", "mob enforcer":
 		return "Mob Enforcer"
 	case "acolyte", "ns acolyte", "nsa", "night sister acolyte", "nightsister acolyte":
@@ -215,10 +241,14 @@ func CharName(src string) string {
 		return "Poggle the Lesser"
 	case "leia", "zleia", "léia":
 		return "Princess Leia"
+	case "qira":
+		return "Qi'ra"
 	case "qgj", "quigon", "qui-gon", "qui gon jin", "qui-gon-jin":
 		return "Qui-Gon Jin"
 	case "r2d2", "r2":
 		return "R2-D2"
+	case "range", "rangetrooper":
+		return "Range Trooper"
 	case "rp":
 		return "Resistance Pilot"
 	case "rt":
@@ -231,6 +261,8 @@ func CharName(src string) string {
 		return "Rey (Jedi Training)"
 	case "rg", "royal":
 		return "Royal Guard"
+	case "rose", "tico":
+		return "Rose Tico"
 	case "sabine", "wren":
 		return "Sabine Wren"
 	case "savage", "so", "zavage":
@@ -243,6 +275,8 @@ func CharName(src string) string {
 		return "Sith Assassin"
 	case "strooper", "trooper":
 		return "Sith Trooper"
+	case "marauder":
+		return "Sith Marauder"
 	case "snow":
 		return "Snowtrooper"
 	case "st", "storm":
@@ -251,6 +285,8 @@ func CharName(src string) string {
 		return "Stormtrooper Han"
 	case "sf":
 		return "Sun Fac"
+	case "t3m4", "t3", "m4":
+		return "T3-M4"
 	case "talia":
 		return "Talia"
 	case "teebo":
@@ -265,6 +301,8 @@ func CharName(src string) string {
 		return "Ugnaught"
 	case "uror", "urorr":
 		return "URoRRuR'R'R"
+	case "visas":
+		return "Visas Marr"
 	case "vchewie", "vchewbacca", "vet chewie", "vet chewbacca", "veteran chewie", "veteran chewbacca", "smuggler chewie", "smuggler chewbacca":
 		return "Veteran Smuggler Chewbacca"
 	case "vhan", "vet han", "veteran han", "veteran han solo", "smuggler han":
@@ -273,16 +311,20 @@ func CharName(src string) string {
 		return "Wedge Antilles"
 	case "wicket":
 		return "Wicket"
+	case "yolo", "young solo":
+		return "Young Han Solo"
+	case "yando", "young lando":
+		return "Young Lando Calrissian"
 	case "zam", "zw", "zam wesell":
 		return "Zam Wesell"
 	}
 	return src
 }
 
-// ShipForCrew returns the ship name for the provided crew member.
+// ShipName returns the ship name for the provided crew member or ship name.
 // Crew member name is first parsed/adjusted by CharName function,
 // so aliases supported there work here too.
-func ShipForCrew(pilot string) string {
+func ShipName(pilot string) string {
 	pilot = CharName(pilot)
 	switch strings.ToLower(pilot) {
 	case "ahsoka tano":
@@ -313,6 +355,8 @@ func ShipForCrew(pilot string) string {
 		return "Ghost"
 	case "admiral ackbar", "home", "home one":
 		return "Home One"
+	case "ht", "hound", "tooth":
+		return "Hound's Tooth"
 	case "tie fighter pilot":
 		return "Imperial TIE Fighter"
 	case "jedi consular":

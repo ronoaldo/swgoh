@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/ronoaldo/swgoh"
 )
 
 // Collection parses a player home page and returns the entire collection list.
@@ -171,11 +172,11 @@ type CharacterSkill struct {
 
 // CharacterStats fetches the characer detail page and extracts all stats.
 func (c *Client) CharacterStats(char string) (*CharacterStats, error) {
-	charSlug := CharSlug(CharName(char))
+	charSlug := CharSlug(swgoh.CharName(char))
 	allyCode := c.AllyCode()
 	doc, err := c.Get(fmt.Sprintf("https://swgoh.gg/p/%s/characters/%s", allyCode, charSlug))
 	if err != nil {
-		return nil, fmt.Errorf("swgohgg: profile for '%s' may not have %s activated. (err=%v)", allyCode, CharName(char), err.Error())
+		return nil, fmt.Errorf("swgohgg: profile for '%s' may not have %s activated. (err=%v)", allyCode, swgoh.CharName(char), err.Error())
 	}
 
 	charStats := &CharacterStats{}

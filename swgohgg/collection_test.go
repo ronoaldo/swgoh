@@ -29,7 +29,7 @@ func TestCharacterStats(t *testing.T) {
 		t.Errorf("Unexpected character stars: %d, expected to be between [1, 7]", stats.Stars)
 	}
 	if stats.GalacticPower < 1 {
-		t.Errorf("Unexpected character power: %d, should be higher than zero")
+		t.Errorf("Unexpected character power: %d, should be higher than zero", stats.GalacticPower)
 	}
 
 	if len(stats.Skills) != 5 {
