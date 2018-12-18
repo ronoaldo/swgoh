@@ -91,7 +91,8 @@ type Unit struct {
 	Rarity  int             `json:"rarity"`
 	Level   int             `json:"level"`
 	XP      int             `json:"xp"`
-	Gear    int             `json:"gear"`
+	GalacticPower int	`json:"gp"`	
+	Gear	int             `json:"gear"`
 	Equiped []UnitEquipment `json:"equipped"`
 
 	CombatType CombatType `json:"combatType"`
