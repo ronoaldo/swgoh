@@ -275,8 +275,6 @@ func CharName(src string) string {
 		return "Sith Assassin"
 	case "strooper", "trooper", "sit":
 		return "Sith Trooper"
-	case "marauder":
-		return "Sith Marauder"
 	case "snow":
 		return "Snowtrooper"
 	case "st", "storm":
