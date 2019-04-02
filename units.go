@@ -25,7 +25,7 @@ func CharName(src string) string {
 		return "B2 Super Battle Droid"
 	case "bastila", "bastilla":
 		return "Bastila Shan"
-	case "bastila fallen", "fallen bastila":
+	case "bastila fallen", "fallen bastila", "bsf", "badstila", "hot topic bastila", "gothstila":
 		return "Bastila Shan (Fallen)"
 	case "barris", "baris", "barriss", "offee", "zarris", "barriss offee", "barris offee", "bariss offee", "baris offee":
 		return "Barriss Offee"
@@ -117,7 +117,7 @@ func CharName(src string) string {
 		return "Ewok Scout"
 	case "ezra", "bridger":
 		return "Ezra Bridger"
-	case "finn", "zinn":
+	case "finn", "zinn", "traitor":
 		return "Finn"
 	case "fox", "foe", "executioner", "panda", "death panda":
 		return "First Order Executioner"
@@ -129,7 +129,7 @@ func CharName(src string) string {
 		return "First Order TIE Pilot"
 	case "fosf", "fosftp", "sftp", "sf tie pilot":
 		return "First Order SF TIE Pilot"
-	case "gamorrean", "guard", "pig", "gamorrean guard", "pig guard":
+	case "gamorrean", "guard", "pig", "gamorrean guard", "pig guard", "gam guard":
 		return "Gamorrean Guard"
 	case "gar", "saxon", "gar saxon":
 		return "Gar Saxon"
@@ -185,7 +185,7 @@ func CharName(src string) string {
 		return "Jawa Scavenger"
 	case "jedi revan", "jkr", "revan":
 		return "Jedi Knight Revan"
-	case "jolee", "jole", "bindo":
+	case "jolee", "jole", "bindo", "jb":
 		return "Jolee Bindo"
 	case "consul", "jc", "cj", "consular", "jedi consular":
 		return "Jedi Consular"
@@ -273,7 +273,7 @@ func CharName(src string) string {
 		return "Shoretrooper"
 	case "sass", "assassin", "sassassin":
 		return "Sith Assassin"
-	case "strooper", "trooper":
+	case "strooper", "trooper", "sit":
 		return "Sith Trooper"
 	case "marauder":
 		return "Sith Marauder"
@@ -317,6 +317,10 @@ func CharName(src string) string {
 		return "Young Lando Calrissian"
 	case "zam", "zw", "zam wesell":
 		return "Zam Wesell"
+	case "drevan", "dr", "dr evan":
+		return "Darth Revan"
+	case "marauder", "sm":
+		return "Sith Marauder"
 	}
 	return src
 }
