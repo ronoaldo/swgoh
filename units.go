@@ -317,7 +317,7 @@ func CharName(src string) string {
 		return "Young Lando Calrissian"
 	case "zam", "zw", "zam wesell":
 		return "Zam Wesell"
-	case "padme":
+	case "padme", "padme amidala":
 		return "Padmé Amidala"	
 	}
 	return src
