@@ -309,12 +309,14 @@ func CharName(src string) string {
 		return "Wedge Antilles"
 	case "wicket":
 		return "Wicket"
-	case "yolo", "young solo":
+	case "yolo", "young solo", "yhs":
 		return "Young Han Solo"
-	case "yando", "young lando":
+	case "yando", "young lando", "ylc":
 		return "Young Lando Calrissian"
 	case "zam", "zw", "zam wesell":
 		return "Zam Wesell"
+	case "padme", "padme amidala":
+		return "Padmé Amidala"	
 	case "drevan", "dr", "dr evan":
 		return "Darth Revan"
 	case "marauder", "sm":
@@ -373,7 +375,7 @@ func ShipName(pilot string) string {
 		return "Phantom II"
 	case "plo koon":
 		return "Plo Koon's Jedi Starfighter"
-	case "poe dameron":
+	case "poe dameron", "poe":
 		return "Poe Dameron's X-wing"
 	case "resistance pilot":
 		return "Resistance X-wing"
@@ -385,7 +387,7 @@ func ShipName(pilot string) string {
 		return "Slave I"
 	case "sun fac":
 		return "Sun Fac's Geonosian Starfighter"
-	case "darth vader", "tie x1", "tie advanced":
+	case "darth vader", "tie x1", "tie advanced", "x1":
 		return "TIE Advanced x1"
 	case "death trooper", "shoretrooper", "reaper", "tie reaper":
 		return "TIE Reaper"
@@ -393,6 +395,10 @@ func ShipName(pilot string) string {
 		return "Umbaran Starfighter"
 	case "wedge antiles":
 		return "Wedge Antilles's X-wing"
+	case "eh":
+		return "Ebon Hawk"
+	case "mf", "milf":
+		return "Han's Millennium Falcon"	
 	}
 	// To allow a fallback mode when you don't have a ship shortcut,
 	// return the same words as received
