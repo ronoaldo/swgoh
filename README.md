@@ -1,5 +1,7 @@
 # SWGoH API client and CLI for Go
 
+[![Build Status](https://travis-ci.org/ronoaldo/swgoh.svg?branch=master)](https://travis-ci.org/ronoaldo/swgoh)
+
 This project implements API client and command line interface (CLI)
 for Star Wars Galaxy of Heroes game. Data is retrieved from third party services
 provided by other developers:
