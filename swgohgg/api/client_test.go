@@ -100,8 +100,8 @@ func TestCharactersCall(t *testing.T) {
 					t.Errorf("Empty ability at position %d: %v", i, char.AbilityClasses[i])
 				}
 			}
-			if char.Role != "Attacker" {
-				t.Errorf("Unexpected role for Darth Vader: %s, expected 'Attacker'", char.Role)
+			if char.Role != "Leader" {
+				t.Errorf("Unexpected role for Darth Vader: %s, expected 'Leader'", char.Role)
 			}
 		}
 	}
