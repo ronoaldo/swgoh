@@ -32,6 +32,7 @@ type Client struct {
 	debug    bool
 	gameData cache.Cache
 	players  cache.Cache
+	guilds   cache.Cache
 }
 
 // New initializes an instance of Client making it ready to use.
@@ -46,6 +47,7 @@ func New(ctx context.Context) *Client {
 	}
 	client.gameData = cache.NewCache(path.Join(cacheDir, GameDataCacheFile), GameDataCacheExpiration)
 	client.players = cache.NewCache(path.Join(cacheDir, PlayerCacheFile), PlayerCacheExpiration)
+	client.guilds = cache.NewCache(path.Join(cacheDir, GuildCacheFile), GuildCacheExpiration)
 	return client
 }
 
@@ -196,7 +198,7 @@ func (c *Client) Players(allyCodes ...string) (players []Player, err error) {
 		}
 	}
 
-	// Save players missing form cache
+	// Save players missing from cache
 	for i := range players {
 		player := players[i]
 		c.players.Put(strconv.Itoa(player.AllyCode), &player)
@@ -204,6 +206,66 @@ func (c *Client) Players(allyCodes ...string) (players []Player, err error) {
 	}
 
 	return players, nil
+}
+
+// Players retrieves all the players from a specified guild including roster details.
+func (c *Client) Guild(allyCode string) (guild *Guild, err error) {
+	allyCodeNumbers, err := parseAllyCodes(allyCode)
+	if err != nil {
+		return nil, fmt.Errorf("swgohhelp: error parsing ally code: %v", err)
+	}
+	allyCodeNumber := allyCodeNumbers[0]
+	// Check if we have the player's guild in the cache first.
+	var g Guild
+	if ok := c.guilds.Get(strconv.Itoa(allyCodeNumber), &g); ok {
+		guild = &g
+		return guild, nil
+	}
+	payload, err := json.Marshal(map[string]interface{}{
+		"allycode": allyCodeNumber,
+		"language": "eng_us",
+		"enums":    false,
+		/*
+			"project": map[string]int{
+				"id":       1,
+				"name":       1,
+				"desc":    1,
+				"members":    1,
+				"status":    1,
+				"required":    1,
+				"bannerColor":    1,
+				"bannerLogo":    1,
+				"message":    1,
+				"gp":    1,
+				"raid":    1,
+				"roster":    1,
+				"updated":    1,
+			},
+		*/
+	})
+	if err != nil {
+		return nil, err
+	}
+	resp, err := c.call("POST", "/swgoh/guild", "application/json", bytes.NewReader(payload))
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	guilds := []Guild{}
+	err = json.NewDecoder(resp.Body).Decode(&guilds)
+	if err != nil {
+		return nil, err
+	}
+	if len(guilds) == 0 {
+		return nil, fmt.Errorf("guild not found")
+	}
+	guild = &guilds[0]
+
+	// Save players missing from cache
+	c.guilds.Put(strconv.Itoa(allyCodeNumber), guild)
+	log.Printf("swgohhelp: saving guild for player %v in cache ...", allyCodeNumber)
+
+	return guild, nil
 }
 
 // writeLogFile is a debug helper function to write log data.

@@ -34,6 +34,35 @@ type Player struct {
 	UpdatedAt Timestamp `json:"updated"`
 }
 
+// Raid contains information about the last performed raid for a guild.
+type Raid struct {
+	Rancor   string `json:"rancor"`
+	AAT      string `json:"aat"`
+	SithRaid string `json:"sith_raid"`
+}
+
+// Guild represents the full guild profile with abbreviated roster info.
+type Guild struct {
+	ID       string `json:"id"`
+	Name     string `json:"name"`
+	Desc     string `json:"desc"`
+	Members  int    `json:"members"`
+	Status   int    `json:"status"`
+	Required int    `json:"required"`
+
+	BannerColor string `json:"bannerColor"`
+	BannerLogo  string `json:"bannerLogo"`
+
+	Message string `json:"message"`
+	GP      int    `json:"gp"`
+
+	Raid Raid `json:"raid"`
+
+	Roster []Player `json:"roster"`
+
+	UpdatedAt Timestamp `json:"updated"`
+}
+
 // PlayerTitle is a list of player unlocked and selected titles.
 type PlayerTitle struct {
 	Selected string   `json:"selected"`
