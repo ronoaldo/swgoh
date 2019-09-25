@@ -18,10 +18,10 @@ var (
 	GameDataCacheExpiration = 7 * 24 * time.Hour
 
 	PlayerCacheFile       = "players.db"
-	PlayerCacheExpiration = 7 * 24 * time.Hour // MEGAHACK -- Make configurable.
+	PlayerCacheExpiration = 24 * time.Hour
 
 	GuildCacheFile       = "guilds.db"
-	GuildCacheExpiration = 1 * 20 * time.Hour // MEGAHACK -- Make configurable.
+	GuildCacheExpiration = 20 * time.Hour
 )
 
 // CacheDirectory calculates and if necessary creates the directory for

@@ -225,23 +225,6 @@ func (c *Client) Guild(allyCode string) (guild *Guild, err error) {
 		"allycode": allyCodeNumber,
 		"language": "eng_us",
 		"enums":    false,
-		/*
-			"project": map[string]int{
-				"id":       1,
-				"name":       1,
-				"desc":    1,
-				"members":    1,
-				"status":    1,
-				"required":    1,
-				"bannerColor":    1,
-				"bannerLogo":    1,
-				"message":    1,
-				"gp":    1,
-				"raid":    1,
-				"roster":    1,
-				"updated":    1,
-			},
-		*/
 	})
 	if err != nil {
 		return nil, err
@@ -261,7 +244,7 @@ func (c *Client) Guild(allyCode string) (guild *Guild, err error) {
 	}
 	guild = &guilds[0]
 
-	// Save players missing from cache
+	// Save the guild (indexed by the player we know about) for future use.
 	c.guilds.Put(strconv.Itoa(allyCodeNumber), guild)
 	log.Printf("swgohhelp: saving guild for player %v in cache ...", allyCodeNumber)
 
