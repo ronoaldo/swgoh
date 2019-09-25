@@ -170,7 +170,7 @@ type CharacterSkill struct {
 	Level int
 }
 
-// CharacterStats fetches the characer detail page and extracts all stats.
+// CharacterStats fetches the character detail page and extracts all stats.
 func (c *Client) CharacterStats(char string) (*CharacterStats, error) {
 	charSlug := CharSlug(swgoh.CharName(char))
 	allyCode := c.AllyCode()
