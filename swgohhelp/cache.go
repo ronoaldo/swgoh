@@ -19,6 +19,9 @@ var (
 
 	PlayerCacheFile       = "players.db"
 	PlayerCacheExpiration = 24 * time.Hour
+
+	GuildCacheFile       = "guilds.db"
+	GuildCacheExpiration = 20 * time.Hour
 )
 
 // CacheDirectory calculates and if necessary creates the directory for
