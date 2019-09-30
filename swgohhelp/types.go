@@ -112,17 +112,23 @@ func (r Roster) Mods() (mods []Mod) {
 	return
 }
 
+// Relic contains information about a character's relic.
+type Relic struct {
+	CurrentTier int `json:"currenttier"`
+}
+
 // Unit is a game unit entity, character or ship.
 type Unit struct {
-	ID      string          `json:"id"`
-	DefID   string          `json:"defId"`
-	Name    string          `json:"nameKey"`
-	Rarity  int             `json:"rarity"`
-	Level   int             `json:"level"`
-	XP      int             `json:"xp"`
-	GalacticPower int	`json:"gp"`	
-	Gear	int             `json:"gear"`
-	Equiped []UnitEquipment `json:"equipped"`
+	ID            string          `json:"id"`
+	DefID         string          `json:"defId"`
+	Name          string          `json:"nameKey"`
+	Rarity        int             `json:"rarity"`
+	Level         int             `json:"level"`
+	XP            int             `json:"xp"`
+	GalacticPower int             `json:"gp"`
+	Gear          int             `json:"gear"`
+	Equiped       []UnitEquipment `json:"equipped"`
+	Relic         Relic           `json:"relic"`
 
 	CombatType CombatType `json:"combatType"`
 
