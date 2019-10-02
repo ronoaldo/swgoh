@@ -123,13 +123,13 @@ type Unit struct {
 	GalacticPower int             `json:"gp"`
 	Gear          int             `json:"gear"`
 	Equiped       []UnitEquipment `json:"equipped"`
-	Relic         Relic           `json:"relic"`
 
 	CombatType CombatType `json:"combatType"`
 
 	Skills []UnitSkill `json:"skills"`
 	Mods   []Mod       `json:"mods"`
 	Crew   []Unit      `json:"crew"`
+	Relic  Relic       `json:"relic"`
 
 	Stats *UnitStats `json:"stats,omitempty"`
 	Data  *DataUnit  `json:"data,omitempty"`
