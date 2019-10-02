@@ -104,17 +104,12 @@ func (r Roster) Mods() (mods []Mod) {
 	for i := range r {
 		for j := range r[i].Mods {
 			if r[i].Mods[j].UnitEquiped == "" {
-				r[i].Mods[j].UnitEquiped = r[i].Name
+				r[i].Mods[j]. UnitEquiped = r[i].Name
 			}
 			mods = append(mods, r[i].Mods[j])
 		}
 	}
 	return
-}
-
-// Relic contains information about a character's relic.
-type Relic struct {
-	CurrentTier int `json:"currenttier"`
 }
 
 // Unit is a game unit entity, character or ship.
@@ -137,6 +132,12 @@ type Unit struct {
 	Crew   []Unit      `json:"crew"`
 
 	Stats *UnitStats `json:"stats,omitempty"`
+	Data  *DataUnit  `json:"data,omitempty"`
+}
+
+// Relic contains the characte relic stats, such as tier.
+type Relic struct {
+	Tier int `json:"currentTier"`
 }
 
 // UnitStats unit statis information split by Final and FromMods
