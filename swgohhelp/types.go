@@ -104,7 +104,7 @@ func (r Roster) Mods() (mods []Mod) {
 	for i := range r {
 		for j := range r[i].Mods {
 			if r[i].Mods[j].UnitEquiped == "" {
-				r[i].Mods[j].UnitEquiped = r[i].Name
+				r[i].Mods[j]. UnitEquiped = r[i].Name
 			}
 			mods = append(mods, r[i].Mods[j])
 		}
@@ -132,6 +132,7 @@ type Unit struct {
 	Relic  Relic       `json:"relic"`
 
 	Stats *UnitStats `json:"stats,omitempty"`
+	Data  *DataUnit  `json:"data,omitempty"`
 }
 
 // Relic contains the characte relic stats, such as tier.

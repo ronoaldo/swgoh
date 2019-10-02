@@ -158,18 +158,6 @@ func (c *Client) Players(allyCodes ...string) (players []Player, err error) {
 		return nil, err
 	}
 
-	// Enrich result with related data from data collections
-	titles, err := c.DataPlayerTitles()
-	if err != nil {
-		return nil, err
-	}
-	for i := range players {
-		players[i].Titles.Selected = titles[players[i].Titles.Selected].Name
-		for j := range players[i].Titles.Unlocked {
-			titleKey := players[i].Titles.Unlocked[j]
-			players[i].Titles.Unlocked[j] = titles[titleKey].Name
-		}
-	}
 	// Enrich result with related data from Crinolo's stat API
 	url := "https://crinolo-swgoh.glitch.me/statCalc/api/characters/?flags=withModCalc,gameStyle"
 	for i := range players {
@@ -195,6 +183,35 @@ func (c *Client) Players(allyCodes ...string) (players []Player, err error) {
 		err = json.Unmarshal(b, &player.Roster)
 		if err != nil {
 			return nil, err
+		}
+	}
+
+	// Enrich result with related data from data collections
+	titles, err := c.DataPlayerTitles()
+	if err != nil {
+		return nil, err
+	}
+	for i := range players {
+		players[i].Titles.Selected = titles[players[i].Titles.Selected].Name
+		for j := range players[i].Titles.Unlocked {
+			titleKey := players[i].Titles.Unlocked[j]
+			players[i].Titles.Unlocked[j] = titles[titleKey].Name
+		}
+	}
+	unitList, err := c.DataUnits()
+	if err != nil {
+		return nil, err
+	}
+	for i := range players {
+		for j := range players[i].Roster {
+			id, defid := players[i].Roster[j].ID, players[i].Roster[j].DefID
+			log.Printf("swgohhelp: checking unit %v,%v", id, defid)
+			if unitData, ok := unitList[players[i].Roster[j].ID]; ok {
+				players[i].Roster[j].Data = &unitData
+			}
+			if unitData, ok := unitList[players[i].Roster[j].DefID]; ok {
+				players[i].Roster[j].Data = &unitData
+			}
 		}
 	}
 
