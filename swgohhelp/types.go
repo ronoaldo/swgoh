@@ -114,23 +114,29 @@ func (r Roster) Mods() (mods []Mod) {
 
 // Unit is a game unit entity, character or ship.
 type Unit struct {
-	ID      string          `json:"id"`
-	DefID   string          `json:"defId"`
-	Name    string          `json:"nameKey"`
-	Rarity  int             `json:"rarity"`
-	Level   int             `json:"level"`
-	XP      int             `json:"xp"`
-	GalacticPower int	`json:"gp"`	
-	Gear	int             `json:"gear"`
-	Equiped []UnitEquipment `json:"equipped"`
+	ID            string          `json:"id"`
+	DefID         string          `json:"defId"`
+	Name          string          `json:"nameKey"`
+	Rarity        int             `json:"rarity"`
+	Level         int             `json:"level"`
+	XP            int             `json:"xp"`
+	GalacticPower int             `json:"gp"`
+	Gear          int             `json:"gear"`
+	Equiped       []UnitEquipment `json:"equipped"`
 
 	CombatType CombatType `json:"combatType"`
 
 	Skills []UnitSkill `json:"skills"`
 	Mods   []Mod       `json:"mods"`
 	Crew   []Unit      `json:"crew"`
+	Relic  Relic       `json:"relic"`
 
 	Stats *UnitStats `json:"stats,omitempty"`
+}
+
+// Relic contains the characte relic stats, such as tier.
+type Relic struct {
+	Tier int `json:"currentTier"`
 }
 
 // UnitStats unit statis information split by Final and FromMods

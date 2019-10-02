@@ -56,7 +56,7 @@ func TestPlayer(t *testing.T) {
 
 		t.Logf("Roster: ")
 		for _, unit := range player.Roster {
-			t.Logf("%s %d* Lvl%d G%d", unit.Name, unit.Rarity, unit.Level, unit.Gear)
+			t.Logf("%s %d* Lvl%d G%d R%d", unit.Name, unit.Rarity, unit.Level, unit.Gear, unit.Relic.Tier)
 			if unit.Stats != nil {
 				f := unit.Stats.Final
 				m := unit.Stats.FromMods
