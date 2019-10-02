@@ -205,7 +205,6 @@ func (c *Client) Players(allyCodes ...string) (players []Player, err error) {
 	for i := range players {
 		for j := range players[i].Roster {
 			id, defid := players[i].Roster[j].ID, players[i].Roster[j].DefID
-			log.Printf("swgohhelp: checking unit %v,%v", id, defid)
 			if unitData, ok := unitList[players[i].Roster[j].ID]; ok {
 				players[i].Roster[j].Data = &unitData
 			}
