@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -23,6 +24,8 @@ var errNotImplemented = fmt.Errorf("swgohhelp: not implemented")
 
 // DefaultEndpoint is the default target host for API calls
 var DefaultEndpoint = "https://api.swgoh.help"
+
+var useExternalStats = flag.Bool("use", true, "Enables use of an external GP calculation API.")
 
 // Client implements an authenticated callee to the https://api.swgoh.help service.
 type Client struct {
@@ -158,31 +161,32 @@ func (c *Client) Players(allyCodes ...string) (players []Player, err error) {
 		return nil, err
 	}
 
-	// Enrich result with related data from Crinolo's stat API
-	url := "https://crinolo-swgoh.glitch.me/statCalc/api/characters/?flags=withModCalc,gameStyle"
-	for i := range players {
-		player := players[i]
-		b, err := json.Marshal(player.Roster)
-		if err != nil {
-			return nil, err
-		}
-		if c.debug {
-			writeLogFile(b, "req", "POST", "_crinoloapi")
-		}
-		resp, err := c.hc.Post(url, "application/json", bytes.NewBuffer(b))
-		if err != nil {
-			return nil, err
-		}
-		b, err = ioutil.ReadAll(resp.Body)
-		if err != nil {
-			return nil, err
-		}
-		if c.debug {
-			writeLogFile(b, "resp", "POST", "_crinoloapi")
-		}
-		err = json.Unmarshal(b, &player.Roster)
-		if err != nil {
-			return nil, err
+	if (*useExternalStats) {
+		// Enrich result with related data from Crinolo's stat API
+		url := "https://swgoh-stat-calc.glitch.me/api/?flags=withModCalc,gameStyle,calcGP"
+		for _, player := range players {
+			b, err := json.Marshal(player.Roster)
+			if err != nil {
+				return nil, err
+			}
+			if c.debug {
+				writeLogFile(b, "req", "POST", "_crinoloapi")
+			}
+			resp, err := c.hc.Post(url, "application/json", bytes.NewBuffer(b))
+			if err != nil {
+				return nil, err
+			}
+			b, err = ioutil.ReadAll(resp.Body)
+			if err != nil {
+				return nil, err
+			}
+			if c.debug {
+				writeLogFile(b, "resp", "POST", "_crinoloapi")
+			}
+			err = json.Unmarshal(b, &player.Roster)
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 
@@ -205,10 +209,10 @@ func (c *Client) Players(allyCodes ...string) (players []Player, err error) {
 	for i := range players {
 		for j := range players[i].Roster {
 			id, defid := players[i].Roster[j].ID, players[i].Roster[j].DefID
-			if unitData, ok := unitList[players[i].Roster[j].ID]; ok {
+			if unitData, ok := unitList[id]; ok {
 				players[i].Roster[j].Data = &unitData
 			}
-			if unitData, ok := unitList[players[i].Roster[j].DefID]; ok {
+			if unitData, ok := unitList[defid]; ok {
 				players[i].Roster[j].Data = &unitData
 			}
 		}
