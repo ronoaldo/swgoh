@@ -32,8 +32,8 @@ func TestCharacterStats(t *testing.T) {
 		t.Errorf("Unexpected character power: %d, should be higher than zero", stats.GalacticPower)
 	}
 
-	if len(stats.Skills) != 5 {
-		t.Errorf("Expected three character skils for Tarkin, got %v", stats.Skills)
+	if len(stats.Skills) != 6 {
+		t.Errorf("Expected six character and pilot skills for Tarkin, got %v", stats.Skills)
 	}
 
 	if stats.Health < 1 {

@@ -11,7 +11,7 @@ import (
 	"strconv"
 	"text/template"
 
-	"github.com/ronoaldo/swgoh/swgohgg"
+	"github.com/ronoaldo/swgoh"
 	"github.com/ronoaldo/swgoh/swgohhelp"
 )
 
@@ -61,12 +61,12 @@ func main() {
 	ctx := context.Background()
 
 	// Authenticate
-	swgoh := swgohhelp.New(ctx).SetDebug(debug)
-	if _, err := swgoh.SignIn(username, password); err != nil {
+	client := swgohhelp.New(ctx).SetDebug(debug)
+	if _, err := client.SignIn(username, password); err != nil {
 		log.Fatalf("swgoh: error authenticating with API backend: %v", err)
 	}
 
-	players, err := swgoh.Players(allyCode)
+	players, err := client.Players(allyCode)
 	if err != nil {
 		log.Fatalf("swgoh: error loading player profile: %v", err)
 	}
@@ -75,7 +75,7 @@ func main() {
 	}
 
 	player := players[0]
-	unitFilter = swgohgg.CharName(unitFilter)
+	unitFilter = swgoh.CharName(unitFilter)
 
 	if showStats {
 		for _, unit := range player.Roster {

@@ -150,7 +150,7 @@ func (c *Client) DataUnitSkills() (result map[string]DataUnitSkill, err error) {
 	for i := range values {
 		result[values[i].ID] = values[i]
 	}
-	log.Printf("swgohhelp: saving cache for updated skils")
+	log.Printf("swgohhelp: saving cache for updated skills")
 	c.gameData.Put(cacheKey, &result)
 	return
 }

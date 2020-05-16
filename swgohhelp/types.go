@@ -34,6 +34,35 @@ type Player struct {
 	UpdatedAt Timestamp `json:"updated"`
 }
 
+// Raid contains information about the last performed raid for a guild.
+type Raid struct {
+	Rancor   string `json:"rancor"`
+	AAT      string `json:"aat"`
+	SithRaid string `json:"sith_raid"`
+}
+
+// Guild represents the full guild profile with abbreviated roster info.
+type Guild struct {
+	ID       string `json:"id"`
+	Name     string `json:"name"`
+	Desc     string `json:"desc"`
+	Members  int    `json:"members"`
+	Status   int    `json:"status"`
+	Required int    `json:"required"`
+
+	BannerColor string `json:"bannerColor"`
+	BannerLogo  string `json:"bannerLogo"`
+
+	Message string `json:"message"`
+	GP      int    `json:"gp"`
+
+	Raid Raid `json:"raid"`
+
+	Roster []Player `json:"roster"`
+
+	UpdatedAt Timestamp `json:"updated"`
+}
+
 // PlayerTitle is a list of player unlocked and selected titles.
 type PlayerTitle struct {
 	Selected string   `json:"selected"`
@@ -75,7 +104,7 @@ func (r Roster) Mods() (mods []Mod) {
 	for i := range r {
 		for j := range r[i].Mods {
 			if r[i].Mods[j].UnitEquiped == "" {
-				r[i].Mods[j].UnitEquiped = r[i].Name
+				r[i].Mods[j]. UnitEquiped = r[i].Name
 			}
 			mods = append(mods, r[i].Mods[j])
 		}
@@ -85,23 +114,30 @@ func (r Roster) Mods() (mods []Mod) {
 
 // Unit is a game unit entity, character or ship.
 type Unit struct {
-	ID      string          `json:"id"`
-	DefID   string          `json:"defId"`
-	Name    string          `json:"nameKey"`
-	Rarity  int             `json:"rarity"`
-	Level   int             `json:"level"`
-	XP      int             `json:"xp"`
-	GalacticPower int	`json:"gp"`	
-	Gear	int             `json:"gear"`
-	Equiped []UnitEquipment `json:"equipped"`
+	ID            string          `json:"id"`
+	DefID         string          `json:"defId"`
+	Name          string          `json:"nameKey"`
+	Rarity        int             `json:"rarity"`
+	Level         int             `json:"level"`
+	XP            int             `json:"xp"`
+	GalacticPower int             `json:"gp"`
+	Gear          int             `json:"gear"`
+	Equiped       []UnitEquipment `json:"equipped"`
 
 	CombatType CombatType `json:"combatType"`
 
 	Skills []UnitSkill `json:"skills"`
 	Mods   []Mod       `json:"mods"`
 	Crew   []Unit      `json:"crew"`
+	Relic  Relic       `json:"relic"`
 
 	Stats *UnitStats `json:"stats,omitempty"`
+	Data  *DataUnit  `json:"data,omitempty"`
+}
+
+// Relic contains the characte relic stats, such as tier.
+type Relic struct {
+	Tier int `json:"currentTier"`
 }
 
 // UnitStats unit statis information split by Final and FromMods
