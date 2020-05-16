@@ -13,7 +13,7 @@ func CharName(src string) string {
 		return "Aayla Secura"
 	case "aa", "ackbar", "admiral ackbar":
 		return "Admiral Ackbar"
-	case "ahsoka", "ahsoka tano", "asoka":
+	case "ahsoka", "ahsoka tano", "asoka", "at":
 		return "Ahsoka Tano"
 	case "ahsoka tano fulcrum", "fulcrum", "atf":
 		return "Ahsoka Tano (Fulcrum)"
@@ -21,11 +21,13 @@ func CharName(src string) string {
 		return "Asajj Ventress"
 	case "holdo":
 		return "Amilyn Holdo"
+	case "b1":
+		return "B1 Battle Droid"
 	case "b2", "b2 battle droid", "b2 super battle droid":
 		return "B2 Super Battle Droid"
-	case "bastila", "bastilla":
+	case "bastila", "bastilla", "bs":
 		return "Bastila Shan"
-	case "bastila fallen", "fallen bastila":
+	case "bastila fallen", "fallen bastila", "bsf":
 		return "Bastila Shan (Fallen)"
 	case "barris", "baris", "barriss", "offee", "zarris", "barriss offee", "barris offee", "bariss offee", "baris offee":
 		return "Barriss Offee"
@@ -85,10 +87,14 @@ func CharName(src string) string {
 		return "CT-5555 \"Fives\""
 	case "rex", "zrex":
 		return "CT-7567 \"Rex\""
+	case "Malak":
+		return "Darth Malak"
 	case "maul", "zaul", "zmaul", "darth maul":
 		return "Darth Maul"
 	case "dn", "nihilus", "znihilus", "darth nihilis":
 		return "Darth Nihilus"
+	case "DR":
+		return "Darth Revan"
 	case "sion":
 		return "Darth Sion"
 	case "sidious", "zsidious", "darth sidious", "zidious":
@@ -255,8 +261,6 @@ func CharName(src string) string {
 		return "Resistance Trooper"
 	case "rolo", "rebel leia":
 		return "Rebel Officer Leia Organa"
-	case "rey":
-		return "Rey (Scavenger)"
 	case "rey jedi training", "rjt", "rey jt", "jtr":
 		return "Rey (Jedi Training)"
 	case "rg", "royal":
@@ -285,6 +289,8 @@ func CharName(src string) string {
 		return "Stormtrooper Han"
 	case "sf":
 		return "Sun Fac"
+	case "SLKR", "SLK":
+		return "Supreme Leader Kylo Ren"
 	case "t3m4", "t3", "m4":
 		return "T3-M4"
 	case "talia":
