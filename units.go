@@ -49,6 +49,8 @@ func CharName(src string) string {
 		return "Cad Bane"
 	case "canderous", "ordo":
 		return "Canderous Ordo"
+	case "cara", "kara", "kara dune":
+		return "Cara Dune"
 	case "carth", "onasi":
 		return "Carth Onasi"
 	case "chs", "cholo", "captain han", "captain han solo":
@@ -159,6 +161,8 @@ func CharName(src string) string {
 		return "Grand Moff Tarkin"
 	case "greedo":
 		return "Greedo"
+	case "greef", "karga":
+		return "Greef Karga"
 	case "han", "solo", "zolo", "zsolo", "han solo", "han zolo":
 		return "Han Solo"
 	case "hera", "hera syndulla":
@@ -295,6 +299,8 @@ func CharName(src string) string {
 		return "Talia"
 	case "teebo":
 		return "teebo"
+	case "mando", "the man":
+		return "The Mandalorian"
 	case "tfp", "tie", "tie pilot", "tie fighter":
 		return "TIE Fighter Pilot"
 	case "tusken", "Raider":
