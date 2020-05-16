@@ -6,7 +6,7 @@ import (
 
 const (
 	maxLevel     = 85
-	maxGearLevel = 12
+	maxGearLevel = 13
 )
 
 func TestCharacterStats(t *testing.T) {

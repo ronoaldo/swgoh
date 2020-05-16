@@ -98,34 +98,13 @@ func stars(s *goquery.Selection) int {
 }
 
 func gearLevel(s *goquery.Selection) int {
-	switch s.Find(".char-portrait-full-gear-level").Text() {
-	case "XII":
-		return 12
-	case "XI":
-		return 11
-	case "X":
-		return 10
-	case "IX":
-		return 9
-	case "VIII":
-		return 8
-	case "VII":
-		return 7
-	case "VI":
-		return 6
-	case "V":
-		return 5
-	case "IV":
-		return 4
-	case "III":
-		return 3
-	case "II":
-		return 2
-	case "I":
-		return 1
-	default:
-		return 0
+	d := s.Find(".player-char-portrait")
+	for gear := 1; gear <= 13; gear++ {
+		if d.HasClass("char-portrait-full-gear-t" + strconv.Itoa(gear)) {
+			return gear
+		}
 	}
+	return 0
 }
 
 // CharacterStats contains all detailed character stats, as displayed in the game.
@@ -183,10 +162,11 @@ func (c *Client) CharacterStats(char string) (*CharacterStats, error) {
 	charStats.Name = strings.TrimSpace(doc.Find(".pc-char-overview-name").Text())
 	charStats.Level = atoi(doc.Find(".char-portrait-full-level").Text())
 	charStats.Stars = int(stars(doc.Find(".player-char-portrait")))
-	gearInfo := strings.Split(doc.Find(".pc-gear").First().Find(".pc-heading").First().AttrOr("title", "Gear -1 "), " ")
-	if len(gearInfo) > 1 {
-		charStats.GearLevel = atoi(gearInfo[1])
-	}
+	charStats.GearLevel = gearLevel(doc.Find(".pc-portrait"))
+	//gearInfo := strings.Split(doc.Find(".pc-gear").First().Find(".pc-heading").First().AttrOr("title", "Gear -1 "), " ")
+	//if len(gearInfo) > 1 {
+	//	charStats.GearLevel = atoi(gearInfo[1])
+	//}
 	charStats.GalacticPower = atoi(doc.Find(".unit-gp-stat-amount-current").First().Text())
 	// Skills
 	doc.Find(".pc-skills-list").First().Find(".pc-skill").Each(func(i int, s *goquery.Selection) {

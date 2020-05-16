@@ -95,8 +95,6 @@ func CharName(src string) string {
 		return "Darth Maul"
 	case "dn", "nihilus", "znihilus", "darth nihilis":
 		return "Darth Nihilus"
-	case "dr":
-		return "Darth Revan"
 	case "sion":
 		return "Darth Sion"
 	case "sidious", "zsidious", "darth sidious", "zidious":
