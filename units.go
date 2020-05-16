@@ -13,7 +13,7 @@ func CharName(src string) string {
 		return "Aayla Secura"
 	case "aa", "ackbar", "admiral ackbar":
 		return "Admiral Ackbar"
-	case "ahsoka", "ahsoka tano", "asoka":
+	case "ahsoka", "ahsoka tano", "asoka", "at":
 		return "Ahsoka Tano"
 	case "ahsoka tano fulcrum", "fulcrum", "atf":
 		return "Ahsoka Tano (Fulcrum)"
@@ -21,9 +21,11 @@ func CharName(src string) string {
 		return "Asajj Ventress"
 	case "holdo":
 		return "Amilyn Holdo"
+	case "b1":
+		return "B1 Battle Droid"
 	case "b2", "b2 battle droid", "b2 super battle droid":
 		return "B2 Super Battle Droid"
-	case "bastila", "bastilla":
+	case "bastila", "bastilla", "bs":
 		return "Bastila Shan"
 	case "bastila fallen", "fallen bastila", "bsf", "badstila", "hot topic bastila", "gothstila":
 		return "Bastila Shan (Fallen)"
@@ -47,6 +49,8 @@ func CharName(src string) string {
 		return "Cad Bane"
 	case "canderous", "ordo":
 		return "Canderous Ordo"
+	case "cara", "kara", "kara dune":
+		return "Cara Dune"
 	case "carth", "onasi":
 		return "Carth Onasi"
 	case "chs", "cholo", "captain han", "captain han solo":
@@ -85,10 +89,14 @@ func CharName(src string) string {
 		return "CT-5555 \"Fives\""
 	case "rex", "zrex":
 		return "CT-7567 \"Rex\""
+	case "malak":
+		return "Darth Malak"
 	case "maul", "zaul", "zmaul", "darth maul":
 		return "Darth Maul"
 	case "dn", "nihilus", "znihilus", "darth nihilis":
 		return "Darth Nihilus"
+	case "dr":
+		return "Darth Revan"
 	case "sion":
 		return "Darth Sion"
 	case "sidious", "zsidious", "darth sidious", "zidious":
@@ -153,6 +161,8 @@ func CharName(src string) string {
 		return "Grand Moff Tarkin"
 	case "greedo":
 		return "Greedo"
+	case "greef", "karga":
+		return "Greef Karga"
 	case "han", "solo", "zolo", "zsolo", "han solo", "han zolo":
 		return "Han Solo"
 	case "hera", "hera syndulla":
@@ -255,8 +265,6 @@ func CharName(src string) string {
 		return "Resistance Trooper"
 	case "rolo", "rebel leia":
 		return "Rebel Officer Leia Organa"
-	case "rey":
-		return "Rey (Scavenger)"
 	case "rey jedi training", "rjt", "rey jt", "jtr":
 		return "Rey (Jedi Training)"
 	case "rg", "royal":
@@ -283,12 +291,16 @@ func CharName(src string) string {
 		return "Stormtrooper Han"
 	case "sf":
 		return "Sun Fac"
+	case "slkr", "slk":
+		return "Supreme Leader Kylo Ren"
 	case "t3m4", "t3", "m4":
 		return "T3-M4"
 	case "talia":
 		return "Talia"
 	case "teebo":
 		return "teebo"
+	case "mando", "the man":
+		return "The Mandalorian"
 	case "tfp", "tie", "tie pilot", "tie fighter":
 		return "TIE Fighter Pilot"
 	case "tusken", "Raider":
