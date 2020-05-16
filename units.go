@@ -89,13 +89,13 @@ func CharName(src string) string {
 		return "CT-5555 \"Fives\""
 	case "rex", "zrex":
 		return "CT-7567 \"Rex\""
-	case "Malak":
+	case "malak":
 		return "Darth Malak"
 	case "maul", "zaul", "zmaul", "darth maul":
 		return "Darth Maul"
 	case "dn", "nihilus", "znihilus", "darth nihilis":
 		return "Darth Nihilus"
-	case "DR":
+	case "dr":
 		return "Darth Revan"
 	case "sion":
 		return "Darth Sion"
@@ -291,7 +291,7 @@ func CharName(src string) string {
 		return "Stormtrooper Han"
 	case "sf":
 		return "Sun Fac"
-	case "SLKR", "SLK":
+	case "slkr", "slk":
 		return "Supreme Leader Kylo Ren"
 	case "t3m4", "t3", "m4":
 		return "T3-M4"
