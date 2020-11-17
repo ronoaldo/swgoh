@@ -153,7 +153,7 @@ func (c *Client) Players(allyCodes ...string) (players []Player, err error) {
 	if err != nil {
 		return nil, err
 	}
-	resp, err := c.call("POST", "/swgoh/player", "application/json", bytes.NewReader(payload))
+	resp, err := c.call("POST", "/swgoh/players", "application/json", bytes.NewReader(payload))
 	if err != nil {
 		return nil, err
 	}
