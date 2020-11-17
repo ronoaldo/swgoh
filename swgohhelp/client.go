@@ -25,7 +25,9 @@ var errNotImplemented = fmt.Errorf("swgohhelp: not implemented")
 // DefaultEndpoint is the default target host for API calls
 var DefaultEndpoint = "https://api.swgoh.help"
 
-var useExternalStats = flag.Bool("use", true, "Enables use of an external GP calculation API.")
+var targetEndpoint = flag.String("swgoh-endpoint", DefaultEndpoint, "Changes the default target endpoint to make calls to.")
+
+var useExternalStats = flag.Bool("swgoh-external-statcalc", true, "Enables use of an external GP calculation API.")
 
 // Client implements an authenticated callee to the https://api.swgoh.help service.
 type Client struct {
@@ -42,7 +44,7 @@ type Client struct {
 func New(ctx context.Context) *Client {
 	client := &Client{
 		hc:       http.DefaultClient,
-		endpoint: DefaultEndpoint,
+		endpoint: *targetEndpoint,
 	}
 	cacheDir, err := cacheDirectory()
 	if err != nil {
