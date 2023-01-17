@@ -43,6 +43,16 @@ var defaultPageSize = os.Getpagesize()
 // The time elapsed between consecutive file locking attempts.
 const flockRetryTimeout = 50 * time.Millisecond
 
+// FreelistType is the type of the freelist backend
+type FreelistType string
+
+const (
+	// FreelistArrayType indicates backend freelist type is array
+	FreelistArrayType = FreelistType("array")
+	// FreelistMapType indicates backend freelist type is hashmap
+	FreelistMapType = FreelistType("hashmap")
+)
+
 // DB represents a collection of buckets persisted to a file on disk.
 // All data access is performed through transactions which can be obtained through the DB.
 // All the functions on DB will return a ErrDatabaseNotOpen if accessed before Open() is called.
@@ -69,6 +79,13 @@ type DB struct {
 	// write performance under normal operation, but requires a full database
 	// re-sync during recovery.
 	NoFreelistSync bool
+
+	// FreelistType sets the backend freelist type. There are two options. Array which is simple but endures
+	// dramatic performance degradation if database is large and framentation in freelist is common.
+	// The alternative one is using hashmap, it is faster in almost all circumstances
+	// but it doesn't guarantee that it offers the smallest page id available. In normal case it is safe.
+	// The default type is array
+	FreelistType FreelistType
 
 	// When true, skips the truncate call when growing the database.
 	// Setting this to true is only safe on non-ext3/ext4 systems.
@@ -103,7 +120,14 @@ type DB struct {
 	// of truncate() and fsync() when growing the data file.
 	AllocSize int
 
+	// Mlock locks database file in memory when set to true.
+	// It prevents major page faults, however used memory can't be reclaimed.
+	//
+	// Supported only on Unix via mlock/munlock syscalls.
+	Mlock bool
+
 	path     string
+	openFile func(string, int, os.FileMode) (*os.File, error)
 	file     *os.File
 	dataref  []byte // mmap'ed readonly, write throws SEGV
 	data     *[maxMapSize]byte
@@ -169,6 +193,8 @@ func Open(path string, mode os.FileMode, options *Options) (*DB, error) {
 	db.NoGrowSync = options.NoGrowSync
 	db.MmapFlags = options.MmapFlags
 	db.NoFreelistSync = options.NoFreelistSync
+	db.FreelistType = options.FreelistType
+	db.Mlock = options.Mlock
 
 	// Set default values for later DB operations.
 	db.MaxBatchSize = DefaultMaxBatchSize
@@ -181,13 +207,18 @@ func Open(path string, mode os.FileMode, options *Options) (*DB, error) {
 		db.readOnly = true
 	}
 
+	db.openFile = options.OpenFile
+	if db.openFile == nil {
+		db.openFile = os.OpenFile
+	}
+
 	// Open data file and separate sync handler for metadata writes.
-	db.path = path
 	var err error
-	if db.file, err = os.OpenFile(db.path, flag|os.O_CREATE, mode); err != nil {
+	if db.file, err = db.openFile(path, flag|os.O_CREATE, mode); err != nil {
 		_ = db.close()
 		return nil, err
 	}
+	db.path = db.file.Name()
 
 	// Lock file so that other processes using Bolt in read-write mode cannot
 	// use the database  at the same time. This would cause corruption since
@@ -283,7 +314,7 @@ func Open(path string, mode os.FileMode, options *Options) (*DB, error) {
 // concurrent accesses being made to the freelist.
 func (db *DB) loadFreelist() {
 	db.freelistLoad.Do(func() {
-		db.freelist = newFreelist()
+		db.freelist = newFreelist(db.FreelistType)
 		if !db.hasSyncedFreelist() {
 			// Reconstruct free list by scanning the DB.
 			db.freelist.readIDs(db.freepages())
@@ -291,7 +322,7 @@ func (db *DB) loadFreelist() {
 			// Read free list from freelist page.
 			db.freelist.read(db.page(db.meta().freelist))
 		}
-		db.stats.FreePageN = len(db.freelist.ids)
+		db.stats.FreePageN = db.freelist.free_count()
 	})
 }
 
@@ -313,13 +344,21 @@ func (db *DB) mmap(minsz int) error {
 	}
 
 	// Ensure the size is at least the minimum size.
-	var size = int(info.Size())
+	fileSize := int(info.Size())
+	var size = fileSize
 	if size < minsz {
 		size = minsz
 	}
 	size, err = db.mmapSize(size)
 	if err != nil {
 		return err
+	}
+
+	if db.Mlock {
+		// Unlock db memory
+		if err := db.munlock(fileSize); err != nil {
+			return err
+		}
 	}
 
 	// Dereference all mmap references before unmapping.
@@ -335,6 +374,13 @@ func (db *DB) mmap(minsz int) error {
 	// Memory-map the data file as a byte slice.
 	if err := mmap(db, size); err != nil {
 		return err
+	}
+
+	if db.Mlock {
+		// Don't allow swapping of data file
+		if err := db.mlock(fileSize); err != nil {
+			return err
+		}
 	}
 
 	// Save references to the meta pages.
@@ -398,12 +444,36 @@ func (db *DB) mmapSize(size int) (int, error) {
 	return int(sz), nil
 }
 
+func (db *DB) munlock(fileSize int) error {
+	if err := munlock(db, fileSize); err != nil {
+		return fmt.Errorf("munlock error: " + err.Error())
+	}
+	return nil
+}
+
+func (db *DB) mlock(fileSize int) error {
+	if err := mlock(db, fileSize); err != nil {
+		return fmt.Errorf("mlock error: " + err.Error())
+	}
+	return nil
+}
+
+func (db *DB) mrelock(fileSizeFrom, fileSizeTo int) error {
+	if err := db.munlock(fileSizeFrom); err != nil {
+		return err
+	}
+	if err := db.mlock(fileSizeTo); err != nil {
+		return err
+	}
+	return nil
+}
+
 // init creates a new database file and initializes its meta pages.
 func (db *DB) init() error {
 	// Create two meta pages on a buffer.
 	buf := make([]byte, db.pageSize*4)
 	for i := 0; i < 2; i++ {
-		p := db.pageInBuffer(buf[:], pgid(i))
+		p := db.pageInBuffer(buf, pgid(i))
 		p.id = pgid(i)
 		p.flags = metaPageFlag
 
@@ -420,13 +490,13 @@ func (db *DB) init() error {
 	}
 
 	// Write an empty freelist at page 3.
-	p := db.pageInBuffer(buf[:], pgid(2))
+	p := db.pageInBuffer(buf, pgid(2))
 	p.id = pgid(2)
 	p.flags = freelistPageFlag
 	p.count = 0
 
 	// Write an empty leaf page at page 4.
-	p = db.pageInBuffer(buf[:], pgid(3))
+	p = db.pageInBuffer(buf, pgid(3))
 	p.id = pgid(3)
 	p.flags = leafPageFlag
 	p.count = 0
@@ -438,6 +508,7 @@ func (db *DB) init() error {
 	if err := fdatasync(db); err != nil {
 		return err
 	}
+	db.filesz = len(buf)
 
 	return nil
 }
@@ -949,6 +1020,12 @@ func (db *DB) grow(sz int) error {
 		if err := db.file.Sync(); err != nil {
 			return fmt.Errorf("file sync error: %s", err)
 		}
+		if db.Mlock {
+			// unlock old file and lock new one
+			if err := db.mrelock(db.filesz, sz); err != nil {
+				return fmt.Errorf("mlock/munlock error: %s", err)
+			}
+		}
 	}
 
 	db.filesz = sz
@@ -1005,6 +1082,13 @@ type Options struct {
 	// under normal operation, but requires a full database re-sync during recovery.
 	NoFreelistSync bool
 
+	// FreelistType sets the backend freelist type. There are two options. Array which is simple but endures
+	// dramatic performance degradation if database is large and framentation in freelist is common.
+	// The alternative one is using hashmap, it is faster in almost all circumstances
+	// but it doesn't guarantee that it offers the smallest page id available. In normal case it is safe.
+	// The default type is array
+	FreelistType FreelistType
+
 	// Open database in read-only mode. Uses flock(..., LOCK_SH |LOCK_NB) to
 	// grab a shared lock (UNIX).
 	ReadOnly bool
@@ -1029,13 +1113,23 @@ type Options struct {
 	// set directly on the DB itself when returned from Open(), but this option
 	// is useful in APIs which expose Options but not the underlying DB.
 	NoSync bool
+
+	// OpenFile is used to open files. It defaults to os.OpenFile. This option
+	// is useful for writing hermetic tests.
+	OpenFile func(string, int, os.FileMode) (*os.File, error)
+
+	// Mlock locks database file in memory when set to true.
+	// It prevents potential page faults, however
+	// used memory can't be reclaimed. (UNIX only)
+	Mlock bool
 }
 
 // DefaultOptions represent the options used if nil options are passed into Open().
 // No timeout is used which will cause Bolt to wait indefinitely for a lock.
 var DefaultOptions = &Options{
-	Timeout:    0,
-	NoGrowSync: false,
+	Timeout:      0,
+	NoGrowSync:   false,
+	FreelistType: FreelistArrayType,
 }
 
 // Stats represents statistics about the database.

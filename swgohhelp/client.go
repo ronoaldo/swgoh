@@ -20,7 +20,7 @@ import (
 	"github.com/ronoaldo/swgoh/cache"
 )
 
-var errNotImplemented = fmt.Errorf("swgohhelp: not implemented")
+//var errNotImplemented = fmt.Errorf("swgohhelp: not implemented")
 
 // DefaultEndpoint is the default target host for API calls
 var DefaultEndpoint = "https://api.swgoh.help"
@@ -157,13 +157,21 @@ func (c *Client) Players(allyCodes ...string) (players []Player, err error) {
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
-	err = json.NewDecoder(resp.Body).Decode(&players)
+
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
 
-	if (*useExternalStats) {
+	fmt.Println(string(body))
+
+	// defer resp.Body.Close()
+	// err = json.NewDecoder(resp.Body).Decode(&players)
+	// if err != nil {
+	// 	return nil, err
+	// }
+
+	if *useExternalStats {
 		// Enrich result with related data from Crinolo's stat API
 		url := "https://swgoh-stat-calc.glitch.me/api/?flags=withModCalc,gameStyle,calcGP"
 		for _, player := range players {
@@ -238,11 +246,11 @@ func (c *Client) Guild(allyCode string) (guild *Guild, err error) {
 	}
 	allyCodeNumber := allyCodeNumbers[0]
 	// Check if we have the player's guild in the cache first.
-	var g Guild
-	if ok := c.guilds.Get(strconv.Itoa(allyCodeNumber), &g); ok {
-		guild = &g
-		return guild, nil
-	}
+	// var g Guild
+	// if ok := c.guilds.Get(strconv.Itoa(allyCodeNumber), &g); ok {
+	// 	guild = &g
+	// 	return guild, nil
+	// }
 	payload, err := json.Marshal(map[string]interface{}{
 		"allycode": allyCodeNumber,
 		"language": "eng_us",
@@ -256,21 +264,28 @@ func (c *Client) Guild(allyCode string) (guild *Guild, err error) {
 		return nil, err
 	}
 	defer resp.Body.Close()
-	guilds := []Guild{}
-	err = json.NewDecoder(resp.Body).Decode(&guilds)
+
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
-	if len(guilds) == 0 {
-		return nil, fmt.Errorf("guild not found")
-	}
-	guild = &guilds[0]
 
-	// Save the guild (indexed by the player we know about) for future use.
-	c.guilds.Put(strconv.Itoa(allyCodeNumber), guild)
-	log.Printf("swgohhelp: saving guild for player %v in cache ...", allyCodeNumber)
+	fmt.Printf("%v", string(body))
+	//guilds := []Guild{}
+	// err = json.NewDecoder(resp.Body).Decode(&guilds)
+	// if err != nil {
+	// 	return /*nil,*/ err
+	// }
+	// if len(guilds) == 0 {
+	// 	return /*nil,*/ fmt.Errorf("guild not found")
+	// }
+	// guild = &guilds[0]
 
-	return guild, nil
+	// // Save the guild (indexed by the player we know about) for future use.
+	// c.guilds.Put(strconv.Itoa(allyCodeNumber), guild)
+	// log.Printf("swgohhelp: saving guild for player %v in cache ...", allyCodeNumber)
+
+	return nil, nil
 }
 
 // writeLogFile is a debug helper function to write log data.
