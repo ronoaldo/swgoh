@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"strconv"
 	"time"
 )
 
@@ -23,6 +24,22 @@ var (
 	GuildCacheFile       = "guilds.db"
 	GuildCacheExpiration = 20 * time.Hour
 )
+
+/*
+CheckAllyCodesInCache takes in a int slice of Ally Codes, and
+*/
+func (c *Client) CheckAllyCodesInCache(allyCodes []int) (players []Player, allyCodesNotInCache []int) {
+	// Check if we have some of them in cache first
+	for _, ally := range allyCodes {
+		var player Player
+		if c.players.Get(strconv.Itoa(ally), &player) {
+			players = append(players, player)
+			continue
+		}
+		allyCodesNotInCache = append(allyCodesNotInCache, ally)
+	}
+	return players, allyCodesNotInCache
+}
 
 // CacheDirectory calculates and if necessary creates the directory for
 // storing cache data.

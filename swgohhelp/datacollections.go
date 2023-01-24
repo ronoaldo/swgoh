@@ -3,6 +3,8 @@ package swgohhelp
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
+	"io/ioutil"
 	"log"
 )
 
@@ -30,18 +32,18 @@ func (c *Client) DataPlayerTitles() (result map[string]DataPlayerTitle, err erro
 		},
 	})
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("unable to marshal player title payload data: %v", err)
 	}
 	// Parse result
 	resp, err := c.call("POST", "/swgoh/data", "application/json", bytes.NewReader(payload))
 	if err != nil {
-		return
+		return nil, err
 	}
 	defer resp.Body.Close()
 	values := make([]DataPlayerTitle, 0)
 	err = json.NewDecoder(resp.Body).Decode(&values)
 	if err != nil {
-		return
+		return nil, fmt.Errorf("unable to decode title data request response: %v", err)
 	}
 	// Prepare response as map for easier usage
 	result = make(map[string]DataPlayerTitle)
@@ -260,10 +262,15 @@ func (c *Client) DataUnits() (result map[string]DataUnit, err error) {
 	// Parse result
 	resp, err := c.call("POST", "/swgoh/data", "application/json", bytes.NewReader(payload))
 	if err != nil {
-		return
+		return nil, fmt.Errorf("error requesting unit data: %v", err)
 	}
 	defer resp.Body.Close()
 	values := make([]DataUnit, 0)
+	bod, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("error reading response body: %v", err)
+	}
+	fmt.Printf("%s\n", string(bod))
 	err = json.NewDecoder(resp.Body).Decode(&values)
 	if err != nil {
 		return

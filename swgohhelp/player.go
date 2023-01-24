@@ -1,5 +1,15 @@
 package swgohhelp
 
+import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"io"
+	"io/ioutil"
+	"log"
+	"strconv"
+)
+
 //player.go has info on Player, as well as unit + ranking data.
 
 type Arena struct {
@@ -156,4 +166,127 @@ type UnitStatItems struct {
 	Resistance               float64 `json:"Resistance"`
 	DeflectionChance         float64 `json:"Deflection Chance"`
 	SpecialCriticalAvoidance float64 `json:"Special Critical Avoidance"`
+}
+
+// Players retrieves several player profile stats and roster details.
+func (c *Client) Players(allyCodes ...string) (players []Player, err error) {
+	allyCodeNumbers, err := parseAllyCodes(allyCodes...)
+	if err != nil {
+		return nil, fmt.Errorf("swgohhelp: error parsing ally codes: %v", err)
+	}
+	// Check if we have some of them in cache first
+	players, missingFromCache := c.CheckAllyCodesInCache(allyCodeNumbers)
+	if len(missingFromCache) == 0 {
+		return players, nil
+	}
+	fmt.Printf("%d\n", missingFromCache)
+	payload, err := json.Marshal(map[string]interface{}{
+		"allycodes": missingFromCache,
+		"language":  "eng_us",
+		"enums":     false,
+		"project": map[string]int{
+			"id":         1,
+			"allyCode":   1,
+			"name":       1,
+			"level":      1,
+			"stats":      1,
+			"arena":      1,
+			"roster":     1,
+			"guildName":  1,
+			"guildRefId": 1,
+			"titles":     1,
+			"updated":    1,
+		},
+	})
+	if err != nil {
+		return nil, fmt.Errorf("unable to martial player data payload: %v", err)
+	}
+	resp, err := c.call("POST", "/swgoh/players", "application/json", bytes.NewReader(payload))
+	if err != nil {
+		return nil, fmt.Errorf("unable to get player data %v", err)
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("issue reading response body %s\nError: %v", c.endpoint, err)
+	}
+
+	if err := json.Unmarshal(body, &players); err != nil {
+		return nil, fmt.Errorf("issue when unmarshalling json response of %s\nError: %v", c.endpoint, err)
+	}
+
+	// if *useExternalStats {
+	// 	// Enrich result with related data from Crinolo's stat API
+	// 	url := "https://swgoh-stat-calc.glitch.me/api/?flags=withModCalc,gameStyle,calcGP"
+	// 	for _, player := range players {
+	// 		if err := player.getExtendedPlayerData(c, url); err != nil {
+	// 			return nil, fmt.Errorf("error when getting extended player data: %v", err)
+	// 		}
+	// 	}
+	// }
+
+	// Enrich result with related data from data collections
+	// titles, err := c.DataPlayerTitles()
+	// if err != nil {
+	// 	return nil, fmt.Errorf("unable to get title data %v", err)
+	// }
+	// for i := range players {
+	// 	players[i].Titles.Selected = titles[players[i].Titles.Selected].Name
+	// 	for j := range players[i].Titles.Unlocked {
+	// 		titleKey := players[i].Titles.Unlocked[j]
+	// 		players[i].Titles.Unlocked[j] = titles[titleKey].Name
+	// 	}
+	// }
+	// unitList, err := c.DataUnits()
+	// if err != nil {
+	// 	return nil, fmt.Errorf("unable to get unit data: %v", err)
+	// }
+	// for i := range players {
+	// 	for j := range players[i].Roster {
+	// 		id, defid := players[i].Roster[j].ID, players[i].Roster[j].DefID
+	// 		if unitData, ok := unitList[id]; ok {
+	// 			players[i].Roster[j].Data = &unitData
+	// 		}
+	// 		if unitData, ok := unitList[defid]; ok {
+	// 			players[i].Roster[j].Data = &unitData
+	// 		}
+	// 	}
+	// }
+
+	// Save players missing from cache
+	for i := range players {
+		player := players[i]
+		c.players.Put(strconv.Itoa(player.AllyCode), &player)
+		log.Printf("swgohhelp: saving player %v in cache ...", player.AllyCode)
+	}
+
+	return players, nil
+}
+
+func (p *Player) getExtendedPlayerData(c *Client, url string) error {
+	b, err := json.Marshal(p.Roster)
+	if err != nil {
+		return fmt.Errorf("unable to marshal extended player data: %v", err)
+	}
+	if c.debug {
+		writeLogFile(b, "req", "POST", "_crinoloapi")
+	}
+	resp, err := c.hc.Post(url, "application/json", bytes.NewBuffer(b))
+	if err != nil {
+		return fmt.Errorf("error when making extended player data request: %v", err)
+	}
+	b, err = ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return fmt.Errorf("unable to read player data response data: %v", err)
+	}
+	fmt.Printf("response data: %s\n", string(b))
+	if c.debug {
+		writeLogFile(b, "resp", "POST", "_crinoloapi")
+	}
+	err = json.Unmarshal(b, &p.Roster)
+	if err != nil {
+		return fmt.Errorf("unable to unmarshal extended player data resp: %v", err)
+	}
+	return nil
 }
